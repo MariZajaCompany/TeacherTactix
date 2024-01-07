@@ -1,4 +1,5 @@
 import csv
+from Classes.Plan import Plan
 
 class Klasa:
     def __init__(self, poziom_klasy, litera_klasy):
@@ -6,17 +7,27 @@ class Klasa:
         self.poziom_klasy = poziom_klasy
         self.litera_klasy = litera_klasy
         self.rozklad_dzieci = [[0] * 5 for _ in range(5)]
+        self.plan_zajec = Plan()
 
     def get_nazwa_klasy(self):
         return self.nazwa_klasy
+    
+    def get_plan_zajec(self):
+        return self.plan_zajec
+    
+    def get_obecnosc(self, dzien, godzina):
+        return self.rozklad_dzieci[godzina][dzien]
+    
+    def get_rozklad_dzieci(self):
+        return self.rozklad_dzieci
 
     def wyswietl_rozklad_dzieci(self):
         for row in self.rozklad_dzieci:
             print(row)
 
-    def ustaw_wartosc(self, wiersz, kolumna, wartosc):
-        if 0 <= wiersz < 5 and 0 <= kolumna < 5:
-            self.rozklad_dzieci[wiersz][kolumna] = wartosc
+    def ustaw_wartosc(self, godzina, dzien, wartosc):
+        if 0 <= godzina < 5 and 0 <= dzien < 5:
+            self.rozklad_dzieci[godzina][dzien] = wartosc
         else:
             print("Błędne współrzędne")
 
