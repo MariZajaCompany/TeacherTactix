@@ -1,1 +1,2 @@
 #TODO wszystko
+dejm
