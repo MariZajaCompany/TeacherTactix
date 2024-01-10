@@ -23,13 +23,6 @@ def utworz_klasy_z_folderu(folder_danych):
 
     return utworzone_klasy
 
-def klucz_sortowania(obiekt, dzien, godzina):
-    if isinstance(obiekt, Grupa):
-        return obiekt.get_liczba_dzieci()
-    elif isinstance(obiekt, Klasa):
-        return obiekt.get_obecnosc(dzien, godzina)
-
-
 if __name__ == '__main__':
     
     lista_klas = utworz_klasy_z_folderu('Data')
@@ -43,60 +36,31 @@ if __name__ == '__main__':
     
     for dzien in range(1):
         for godzina in range(5):
-            print("Dzien: ", dzien, "Godzina: ", godzina)
-            lista_grup = [[], [], [], []]
-            lista_obecnych = [[], [], [], []]
+            lista_obecnych = []
+            lista_grup = []
             for klasa in lista_klas:
                 if klasa.get_obecnosc(dzien, godzina) > 0:
-                    lista_obecnych[klasa.poziom_klasy].append(klasa)
-
-            for poziom in range(4):
-                
-                lista_obecnych[poziom] = sorted(lista_obecnych[poziom], key=lambda klasa: klasa.get_obecnosc(dzien, godzina), reverse=True)
-                
-                if poziom > 0: #sprawdzanie czy mlodsza grupa może "awansować" do poziomu wyżej
-                    tmp_obecne_klasy = list(lista_obecnych[poziom])
-                    for mlodsza_grupa in lista_grup[poziom - 1]:
-                        for klasa in tmp_obecne_klasy:
-                            if mlodsza_grupa.get_liczba_dzieci() < 25 - klasa.get_obecnosc(dzien, godzina):
-                                tmp_obecne_klasy.remove(klasa)
-                                lista_obecnych[poziom].append(mlodsza_grupa)
-                    lista_obecnych[poziom] = sorted(lista_obecnych[poziom], key=lambda obiekt: klucz_sortowania(obiekt, dzien, godzina), reverse=True)
-                
-
-                    # Wyświetlanie listy_obecnych
-                    """
-                    if lista_obecnych[poziom]:
-                        print(f"Poziom {poziom}:")
-                        for obiekty in enumerate(lista_obecnych[poziom]):
-                                for obiekt in obiekty:
-                                    if isinstance(obiekt, Grupa):
-                                        print(f"  Grupa - Liczba dzieci: {obiekt.get_liczba_dzieci()}")
-                                    elif isinstance(obiekt, Klasa):
-                                        print(f"  Klasa - Obecność: {obiekt.get_obecnosc(dzien, godzina)}")
-                    """
-
-
-                while lista_obecnych[poziom]: # dzialanie tej petli jest specjalne
-                    for klasa in lista_obecnych[poziom]:
-                        grupa = Grupa(dzien, godzina)
-                        lista_obecnych[poziom].remove(klasa)
-                        grupa.dodaj_dzieci(klasa)
-                        for inna_klasa in lista_obecnych[poziom]:
-                            if grupa.dodaj_dzieci(inna_klasa):
-                                lista_obecnych[poziom].remove(inna_klasa)
-                        lista_grup[poziom].append(grupa)
-                
-                if lista_grup[poziom]:
-                    print("Klasy: ", poziom)
-                    for grupa in lista_grup[poziom]:
-                        for klasa in grupa.get_lista_klas():
-                            print(f"{klasa.get_nazwa_klasy()} ({klasa.get_obecnosc(dzien, godzina)})", end=" + " if grupa.get_lista_klas().index(klasa) < len(grupa.get_lista_klas()) - 1 else "",)
-                        print()  # Dodaj nową linię po wyświetleniu wszystkich klas w grupie
-
-                
-
+                    lista_obecnych.append(klasa)
             
+            lista_obecnych = sorted(lista_obecnych, key=lambda klasa: klasa.get_obecnosc(dzien, godzina), reverse=True)
+
+            while lista_obecnych: # dzialanie tej petli jest specjalne
+                for klasa in lista_obecnych:
+                    grupa = Grupa(dzien, godzina)
+                    lista_obecnych.remove(klasa)
+                    
+                    grupa.dodaj_klase(klasa)
+                    for inna_klasa in lista_obecnych:
+                        if grupa.dodaj_klase(inna_klasa):
+                            lista_obecnych.remove(inna_klasa)
+                    lista_grup.append(grupa)
+            
+            if lista_grup:
+                print("Dzien: ", dzien, "Godzina: ", godzina)
+                for grupa in lista_grup:
+                    for klasa in grupa.get_lista_klas():
+                        print(f"{klasa.get_nazwa_klasy()} ({klasa.get_obecnosc(dzien, godzina)})", end=" + " if grupa.get_lista_klas().index(klasa) < len(grupa.get_lista_klas()) - 1 else "",)
+                    print()  # Dodaj nową linię po wyświetleniu wszystkich klas w grupie
             
 
 
