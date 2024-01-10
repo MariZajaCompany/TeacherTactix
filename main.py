@@ -1,65 +1,65 @@
-from Classes.Opiekun import Opiekun
-from Classes.Klasa import Klasa
-from Classes.Grupa import Grupa
+from Classes.Teacher import Teacher
+from Classes.ClassInSchool import ClassInSchool
+from Classes.Group import Group
 import os
 import re
 
-def utworz_klasy_z_folderu(folder_danych):
-    prefix_pliku = 'rozklad_'
-    lista_plikow_csv = [plik for plik in os.listdir(folder_danych) if plik.startswith(prefix_pliku) and plik.endswith('.csv')]
-    utworzone_klasy = []
+def create_classes_from_folder(directory):
+    filePrefix = 'rozklad_'
+    csvFilesList = [plik for plik in os.listdir(directory) if plik.startswith(filePrefix) and plik.endswith('.csv')]
+    createdClasses = []
 
-    for nazwa_pliku in lista_plikow_csv:
-        wynik = re.match(r'rozklad_(\d+)(\w)\.csv', nazwa_pliku)
-        if wynik:
-            cyfra, litera = wynik.groups()
-            obiekt_klasy = Klasa(int(cyfra), litera)
-            utworzone_klasy.append(obiekt_klasy)
-            #print(f"Nazwa pliku: {nazwa_pliku}, Klasa: {obiekt_klasy.poziom_klasy}, {obiekt_klasy.litera_klasy}")
-            sciezka_do_csv = os.path.join("Data", nazwa_pliku)
-            obiekt_klasy.wczytaj_z_csv(sciezka_do_csv)
+    for fileName in csvFilesList:
+        result = re.match(r'rozklad_(\d+)(\w)\.csv', fileName)
+        if result:
+            number, letter = result.groups()
+            classObject = ClassInSchool(int(number), letter)
+            createdClasses.append(classObject)
+            #print(f"Nazwa pliku: {fileName}, ClassInSchool: {classObject.poziom_klasy}, {classObject.letter_klasy}")
+            csvFilePath = os.path.join("Data", fileName)
+            classObject.read_from_csv(csvFilePath)
         else:
-            print(f"Niewłaściwy format nazwy pliku: {nazwa_pliku}")
+            print(f"Wrong file name format: {fileName}")
 
-    return utworzone_klasy
+    return createdClasses
 
 if __name__ == '__main__':
     
-    lista_klas = utworz_klasy_z_folderu('Data')
-    liczba_klas = len(lista_klas)
+    listOfClasses = create_classes_from_folder('Data')
+    numberOfClasses = len(listOfClasses)
 
-    for klasa in lista_klas:
-        print(f"\nKlasa: {klasa.nazwa_klasy}")
-        klasa.wyswietl_rozklad_dzieci()
+    for classInSchool in listOfClasses:
+        print(f"\nClassInSchool: {classInSchool.className}")
+        classInSchool.print_children_layout()
 
     # utworzenie harmonogramu
     
-    for dzien in range(1):
-        for godzina in range(5):
-            lista_obecnych = []
-            lista_grup = []
-            for klasa in lista_klas:
-                if klasa.get_obecnosc(dzien, godzina) > 0:
-                    lista_obecnych.append(klasa)
+    for day in range(1):
+        for hour in range(5):
+            listOfCurrent = []
+            listOfGroups = []
+            for classInSchool in listOfClasses:
+                if classInSchool.get_attendance(day, hour) > 0:
+                    listOfCurrent.append(classInSchool)
             
-            lista_obecnych = sorted(lista_obecnych, key=lambda klasa: klasa.get_obecnosc(dzien, godzina), reverse=True)
+            listOfCurrent = sorted(listOfCurrent, key=lambda ClassInSchool: ClassInSchool.get_attendance(day, hour), reverse=True)
 
-            while lista_obecnych: # dzialanie tej petli jest specjalne
-                for klasa in lista_obecnych:
-                    grupa = Grupa(dzien, godzina)
-                    lista_obecnych.remove(klasa)
+            while listOfCurrent: # dzialanie tej petli jest specjalne
+                for classInSchool in listOfCurrent:
+                    group = Group(day, hour)
+                    listOfCurrent.remove(classInSchool)
                     
-                    grupa.dodaj_klase(klasa)
-                    for inna_klasa in lista_obecnych:
-                        if grupa.dodaj_klase(inna_klasa):
-                            lista_obecnych.remove(inna_klasa)
-                    lista_grup.append(grupa)
+                    group.add_class_in_school(classInSchool)
+                    for nextClassInSchool in listOfCurrent:
+                        if group.add_class_in_school(nextClassInSchool):
+                            listOfCurrent.remove(nextClassInSchool)
+                    listOfGroups.append(group)
             
-            if lista_grup:
-                print("Dzien: ", dzien, "Godzina: ", godzina)
-                for grupa in lista_grup:
-                    for klasa in grupa.get_lista_klas():
-                        print(f"{klasa.get_nazwa_klasy()} ({klasa.get_obecnosc(dzien, godzina)})", end=" + " if grupa.get_lista_klas().index(klasa) < len(grupa.get_lista_klas()) - 1 else "",)
+            if listOfGroups:
+                print("Day: ", day, "Hour: ", hour)
+                for group in listOfGroups:
+                    for classInSchool in group.get_list_of_classes():
+                        print(f"{classInSchool.get_class_name()} ({classInSchool.get_attendance(day, hour)})", end=" + " if group.get_list_of_classes().index(classInSchool) < len(group.get_list_of_classes()) - 1 else "",)
                     print()  # Dodaj nową linię po wyświetleniu wszystkich klas w grupie
             
 
@@ -69,9 +69,9 @@ if __name__ == '__main__':
             
 
     """
-    # Przykład opiekuna:
-    opiekun = Opiekun("Jan Kowalski", 1)
+    # Przykład Teachera:
+    Teacher = Teacher("Jan Kowalski", 1)
     print("\nJan Kowalski:")
-    opiekun.wczytaj_z_csv("Data\\jan_kowalski.csv")
-    opiekun.wyswietl_dostepnosc()
+    Teacher.wczytaj_z_csv("Data\\jan_kowalski.csv")
+    Teacher.wyswietl_dostepnosc()
     """
