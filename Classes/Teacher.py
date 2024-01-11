@@ -1,18 +1,19 @@
 import csv
 
 class Teacher:
-    def __init__(self, nameAndSurname, id):
+
+    def __init__(self, name_surname, id):
         self.id = id
-        self.nameAndSurname = nameAndSurname
+        self.name_surname = name_surname
         self.availability = [[False] * 5 for _ in range(5)]
 
     def print_availability(self):
-        for row in self.availability:
-            print(row)
+        for hour in self.availability:
+            print(hour)
 
-    def set_value_in_availability(self, row, column, value):
-        if 0 <= row < 5 and 0 <= column < 5:
-            self.availability[row][column] = value
+    def set_value_in_availability(self, hour, day, value):
+        if 0 <= hour < 5 and 0 <= day < 5:
+            self.availability[hour][day] = value
         else:
             print("Wrong coordinates")
 
@@ -20,8 +21,6 @@ class Teacher:
         try:
             with open(path_csv, newline='') as csvfile:
                 reader = csv.reader(csvfile, delimiter=',')
-                for i, row in enumerate(reader):
-                    for j, value in enumerate(row):
                         self.set_value_in_availability(i, j, bool(int(value)))
         except FileNotFoundError:
             print(f"CSV file '{path_csv}' was not found.")
