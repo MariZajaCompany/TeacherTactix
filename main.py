@@ -1,5 +1,7 @@
+
 from Classes.Schedule import Schedule
 from Classes.ClassInSchool import ClassInSchool
+
 import os
 import re
 
@@ -18,7 +20,6 @@ def create_classes_from_folder(directory):
             classObject.read_from_csv(csvFilePath)
         else:
             print(f"Wrong file name format: {fileName}")
-
     return createdClasses
 
 

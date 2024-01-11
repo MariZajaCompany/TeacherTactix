@@ -1,6 +1,7 @@
 import csv
 
 class Teacher:
+
     def __init__(self, name_surname, id):
         self.id = id
         self.name_surname = name_surname
@@ -20,8 +21,6 @@ class Teacher:
         try:
             with open(path_csv, newline='') as csvfile:
                 reader = csv.reader(csvfile, delimiter=',')
-                for i, hour in enumerate(reader):
-                    for j, value in enumerate(hour):
                         self.set_value_in_availability(i, j, bool(int(value)))
         except FileNotFoundError:
             print(f"CSV file '{path_csv}' was not found.")

@@ -15,6 +15,7 @@ class ClassInSchool:
         return self.schedule
     
     def get_attendance(self, day, hour):
+
         return self.children_layout[hour][day]
     
     def get_children_layout(self):
@@ -26,6 +27,7 @@ class ClassInSchool:
 
     def set_value_in_layout(self, hour, day, value):
         if 0 <= hour < 5 and 0 <= day < 5:
+
             self.children_layout[hour][day] = value
         else:
             print("Wrong coordinates")
