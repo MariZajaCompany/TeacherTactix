@@ -1,38 +1,41 @@
-from Classes.Opiekun import Opiekun
-from Classes.Klasa import Klasa
+from Classes.Schedule import Schedule
+from Classes.ClassInSchool import ClassInSchool
 import os
 import re
 
-def utworz_klasy_z_folderu(folder_danych):
-    prefix_pliku = 'rozklad_'
-    lista_plikow_csv = [plik for plik in os.listdir(folder_danych) if plik.startswith(prefix_pliku) and plik.endswith('.csv')]
-    utworzone_klasy = []
+def create_classes_from_folder(directory):
+    filePrefix = 'rozklad_'
+    csvFilesList = [plik for plik in os.listdir(directory) if plik.startswith(filePrefix) and plik.endswith('.csv')]
+    createdClasses = []
 
-    for nazwa_pliku in lista_plikow_csv:
-        wynik = re.match(r'rozklad_(\d+)(\w)\.csv', nazwa_pliku)
-        if wynik:
-            cyfra, litera = wynik.groups()
-            obiekt_klasy = Klasa(int(cyfra), litera)
-            utworzone_klasy.append(obiekt_klasy)
-            print(f"Nazwa pliku: {nazwa_pliku}, Klasa: {obiekt_klasy.poziom_klasy}, {obiekt_klasy.litera_klasy}")
-            sciezka_do_csv = os.path.join("Data", nazwa_pliku)
-            obiekt_klasy.wczytaj_z_csv(sciezka_do_csv)
+    for fileName in csvFilesList:
+        result = re.match(r'rozklad_(\d+)(\w)\.csv', fileName)
+        if result:
+            number, letter = result.groups()
+            classObject = ClassInSchool(int(number), letter)
+            createdClasses.append(classObject)
+            csvFilePath = os.path.join("Data", fileName)
+            classObject.read_from_csv(csvFilePath)
         else:
-            print(f"Niewłaściwy format nazwy pliku: {nazwa_pliku}")
+            print(f"Wrong file name format: {fileName}")
 
-    return utworzone_klasy
+    return createdClasses
+
+
 
 if __name__ == '__main__':
     
-    lista_klas = utworz_klasy_z_folderu('Data')
+    all_classes = create_classes_from_folder('Data')
     
-    for klasa in lista_klas:
-        print(f"\nKlasa: {klasa.nazwa_klasy}")
-        klasa.wyswietl_rozklad_dzieci()
+    for school_class in all_classes:
+        print(f"\nClassInSchool: {school_class.class_name}")
+        school_class.print_children_layout()
 
-    # Przykład opiekuna:
-    opiekun = Opiekun("Jan Kowalski", 1)
-    print("\nJan Kowalski:")
-    opiekun.wczytaj_z_csv("Data\\jan_kowalski.csv")
-    opiekun.wyswietl_dostepnosc()
+    # utworzenie harmonogramu
+    schedule = Schedule()    
+    schedule.create_groups(all_classes)
 
+    schedule.display_schedule()
+
+    schedule.save_as()
+                
