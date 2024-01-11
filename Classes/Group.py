@@ -10,7 +10,27 @@ class Group:
 
     def get_list_of_classes(self):
         return self.list_of_classes
-        
+    
+    def update_group(self):
+        self.hour += 1
+        self.number_of_children = 0
+        school_classes = self.list_of_classes
+        for school_class in school_classes:
+            self.number_of_children += school_class.get_attendance(self.day, self.hour)
+            if school_class.get_attendance(self.day, self.hour) == 0:
+                self.list_of_classes.remove(school_class)
+                
+
+    def get_younger_grade(self):
+        min_grade = self.list_of_classes[0].class_grade
+
+        # Iteruj po pozostałych klasach i aktualizuj min_grade, jeśli znajdziesz niższy poziom klasy
+        for school_class in self.list_of_classes[1:]:
+            if school_class.class_grade < min_grade:
+                min_grade = school_class.class_grade
+
+        return min_grade
+    
     def get_number_of_children(self):
         return self.number_of_children
 
@@ -33,10 +53,10 @@ class Group:
     def display_group(self):
         #print(f"Day: {self.day}")
         #print(f"Hour: {self.hour}")
-        print(f"Number of Children: {self.number_of_children}")
-        print(f"Teacher: {self.teacher}")
-        print(f"Room: {self.room}")
-        print("Classes:")
-        for school_class in self.get_list_of_classes():
-            print(f"{school_class.get_class_name()} ({school_class.get_attendance(self.day, self.hour)})", end=" + " if self.get_list_of_classes().index(school_class) < len(self.get_list_of_classes()) - 1 else "",)
+        print(f"\tNumber of Children: {self.number_of_children}")
+        print(f"\tTeacher: {self.teacher}")
+        print(f"\tRoom: {self.room}")
+        class_names = [f"{school_class.get_class_name()} ({school_class.get_attendance(self.day, self.hour)})" for school_class in self.get_list_of_classes()]
+        # Join class names with ' + ' and print
+        print("\tClasses: " + " + ".join(class_names))
         print("\n")

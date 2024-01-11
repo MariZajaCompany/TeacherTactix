@@ -11,6 +11,9 @@ class ClassInSchool:
     def get_class_name(self):
         return self.class_name
     
+    def get_class_grade(self):
+        return self.class_grade
+    
     def get_schedule(self):
         return self.schedule
     

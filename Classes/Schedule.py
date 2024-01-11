@@ -1,6 +1,7 @@
 
 from Classes.ClassInSchool import ClassInSchool
 from Classes.Group import Group
+import copy
 
 def sorting_key(object, day, hour):
     if isinstance(object, Group):
@@ -25,40 +26,74 @@ class Schedule:
                     group.display_group()
 
 
-    def create_groups(self, all_classes):
+    def create_groups(self, list_of_classes):
         for day in range(5):
+            classes_and_groups = list(list_of_classes)
             for hour in range(5):
-                #print("Day: ", day, "Hour: ", hour)
-                current_groups = [[], [], [], []]
-                present_classes = [[], [], [], []]
-                for school_class in all_classes:
-                    if school_class.get_attendance(day, hour) > 0:
-                        present_classes[school_class.class_grade].append(school_class)
+                
+                current_groups = [[], [], [], []]  # przechowuje tylko grupy
+                present_classes = [[], [], [], []] # może przechowywać grupy i klasy
+                for object in classes_and_groups:
+                    if isinstance(object, Group):
+                        group = copy.deepcopy(object)
+                        group.update_group()
+                        
+                        # zaktualizować godzinę i liczbę dzieci w (Group)object - jakieś mogły wrócić do domu
+
+                        present_classes[object.get_younger_grade()].append(group)
+                    elif isinstance(object, ClassInSchool):
+                        if object.get_attendance(day, hour) > 0:
+                            present_classes[object.get_class_grade()].append(object)
 
                 for grade in range(4):
                     
-                    present_classes[grade] = sorted(present_classes[grade], key=lambda school_class: school_class.get_attendance(day, hour), reverse=True)
+                    present_classes[grade] = sorted(present_classes[grade], key=lambda object: sorting_key(object, day, hour), reverse=True)
                     
                     if grade > 0: #sprawdzanie czy mlodsza group może "awansować" do gradeu wyżej
                         tmp_present_classes = list(present_classes[grade])
-                        tmp_current_groups = list(current_groups[grade - 1])
-                        for younger_group in tmp_current_groups:
+                        tmp_younger_groups = list(current_groups[grade - 1])
+                        for younger_group in tmp_younger_groups:
                             for school_class in tmp_present_classes:
-                                if younger_group.get_number_of_children() < 25 - school_class.get_attendance(day, hour):
+                                free_space = 25
+                                if isinstance(school_class, Group):
+                                    free_space -= school_class.get_number_of_children()
+                                elif isinstance(school_class, ClassInSchool):
+                                    free_space -= school_class.get_attendance(day, hour)
+
+                                if younger_group.get_number_of_children() < free_space:
                                     tmp_present_classes.remove(school_class)
                                     present_classes[grade].append(younger_group)
                                     current_groups[grade - 1].remove(younger_group)
                         present_classes[grade] = sorted(present_classes[grade], key=lambda object: sorting_key(object, day, hour), reverse=True)
 
                     while present_classes[grade]: # dzialanie tej petli jest specjalne
-                            for school_class in present_classes[grade]:
-                                group = Group(day, hour)
-                                present_classes[grade].remove(school_class)
-                                group.add_children(school_class)
-                                for inna_ClassInSchool in present_classes[grade]:
-                                    if group.add_children(inna_ClassInSchool):
-                                        present_classes[grade].remove(inna_ClassInSchool)
-                                current_groups[grade].append(group)
+                        for school_class in present_classes[grade]:
+                            group = Group(day, hour)
+                            present_classes[grade].remove(school_class)
+
+                            for object in classes_and_groups:
+                                if object == school_class:
+                                    classes_and_groups.remove(object)
+
+                            """
+                            for object in classes_and_groups:
+                                if isinstance(object, Group) and isinstance(school_class, Group):
+                                    if object == school_class:
+                                        classes_and_groups.remove(object)
+                                elif isinstance(object, ClassInSchool) and isinstance(school_class, ClassInSchool):
+                                    if object.get_class_name() == school_class.get_class_name()
+                                        classes_and_groups.remove(object)
+                            """
+                            
+                            group.add_children(school_class)
+                            for another_school_class in present_classes[grade]:
+                                if group.add_children(another_school_class):
+                                    present_classes[grade].remove(another_school_class)
+                                    for object in classes_and_groups:
+                                        if object == another_school_class:
+                                            classes_and_groups.remove(object)
+                            current_groups[grade].append(group)
+                            classes_and_groups.append(group)
                     
                 for grade in range(4):
                     self.add_groups(current_groups[grade], day, hour)   
