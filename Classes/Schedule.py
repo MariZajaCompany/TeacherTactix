@@ -24,16 +24,40 @@ class Schedule:
                 for group in list_of_groups:
                     group.display_group()
 
-
-    def create_groups(self, all_classes):
+    def display_schedule2(self):
         for day in range(5):
             for hour in range(5):
-                #print("Day: ", day, "Hour: ", hour)
+                print(f"\n\nDay {day + 1}, Hour {hour + 1}:\n")
+                list_of_groups = self.scheduleTable[day][hour]
+                for group in list_of_groups:
+                    group.display_group2()
+
+
+    def create_groups(self, all_classes):
+
+        for day in range(5):
+            prev_groups = [[], [], [], []]
+            for hour in range(5):
+
                 current_groups = [[], [], [], []]
                 present_classes = [[], [], [], []]
+
+                
                 for school_class in all_classes:
                     if school_class.get_attendance(day, hour) > 0:
-                        present_classes[school_class.class_grade].append(school_class)
+                        check = True
+                        for grade in range(4):
+                            for group in prev_groups[grade]:
+                                if school_class in group.get_list_of_classes():
+                                    check = False
+                        if (check): present_classes[school_class.class_grade].append(school_class)
+
+                for grade in range(4):
+                    for group in prev_groups[grade]:
+                        for classInGroup in group.get_list_of_classes():
+                            if classInGroup in present_classes[grade]:
+                                present_classes[grade].remove(classInGroup)
+                        present_classes[grade].append(group)
 
                 for grade in range(4):
                     
@@ -59,10 +83,12 @@ class Schedule:
                                     if group.add_children(inna_ClassInSchool):
                                         present_classes[grade].remove(inna_ClassInSchool)
                                 current_groups[grade].append(group)
-                    
+
                 for grade in range(4):
-                    self.add_groups(current_groups[grade], day, hour)   
+                    self.add_groups(current_groups[grade], day, hour)
+
+                prev_groups = current_groups
         
 
     def save_as(self):
-        print("Dobrze byłoby eksportować jako jakąś czytelną tabelę")
+        print("\nDobrze byłoby eksportować jako jakąś czytelną tabelę")
