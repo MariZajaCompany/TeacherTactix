@@ -36,7 +36,7 @@ if __name__ == '__main__':
     schedule = Schedule()    
     schedule.create_groups(all_classes)
 
-    schedule.display_schedule2()
+    schedule.display_schedule()
 
     schedule.save_as()
                 
