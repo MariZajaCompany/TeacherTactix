@@ -26,11 +26,13 @@ class Schedule:
 
     def display_schedule2(self):
         for day in range(5):
+            print(f"Day {day + 1}")
             for hour in range(5):
-                print(f"\n\nDay {day + 1}, Hour {hour + 1}:\n")
                 list_of_groups = self.scheduleTable[day][hour]
                 for group in list_of_groups:
                     group.display_group2()
+                print()
+            print()
 
 
     def create_groups(self, all_classes):
@@ -63,16 +65,7 @@ class Schedule:
                     
                     present_classes[grade] = sorted(present_classes[grade], key=lambda school_class: school_class.get_attendance(day, hour), reverse=True)
                     
-                    if grade > 0: #sprawdzanie czy mlodsza group może "awansować" do gradeu wyżej
-                        tmp_present_classes = list(present_classes[grade])
-                        tmp_current_groups = list(current_groups[grade - 1])
-                        for younger_group in tmp_current_groups:
-                            for school_class in tmp_present_classes:
-                                if younger_group.get_number_of_children() < 25 - school_class.get_attendance(day, hour):
-                                    tmp_present_classes.remove(school_class)
-                                    present_classes[grade].append(younger_group)
-                                    current_groups[grade - 1].remove(younger_group)
-                        present_classes[grade] = sorted(present_classes[grade], key=lambda object: sorting_key(object, day, hour), reverse=True)
+                    
 
                     while present_classes[grade]: # dzialanie tej petli jest specjalne
                             for school_class in present_classes[grade]:

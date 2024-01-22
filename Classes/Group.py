@@ -49,4 +49,7 @@ class Group:
 
     def display_group2(self):
         for school_class in self.get_list_of_classes():
-            print(f"{school_class.get_class_name()} ({school_class.get_attendance(self.day, self.hour)})", end=" + " if self.get_list_of_classes().index(school_class) < len(self.get_list_of_classes()) - 1 else ",",)
+            attendance = school_class.get_attendance(self.day, self.hour)
+            if attendance != 0:
+                print(f"{school_class.get_class_name()} ({school_class.get_attendance(self.day, self.hour)})", end=" + ")
+        print(",", end="")
