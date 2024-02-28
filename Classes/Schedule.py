@@ -36,7 +36,6 @@ class Schedule:
             prev_groups = [[], [], [], []]
             for hour in range(5):
                 present_groups = [[], [], [], []]
-
                 # check attendance
                 for school_class in all_classes:
                     class_attendance = school_class.get_attendance(day, hour)
@@ -48,12 +47,9 @@ class Schedule:
                     for group in prev_groups[i]:
                         group.set_time(day, hour)
                         for school_class in group.get_list_of_classes():
-                            for object in present_groups[i]:
-                                if isinstance(object, Group): # TO DO
-                                    object.remove_class(school_class) 
-                                elif isinstance(object, ClassInSchool):
-                                    if school_class.get_class_name() == object.get_class_name():
-                                        present_groups[i].remove(object)
+                            for c in present_groups[i]: 
+                                if school_class.get_class_name() == c.get_class_name(): # removing classes that are already in groups 
+                                    present_groups[i].remove(c)
 
                         # removing classes from too big subgroups
                         for grade in range(4):
@@ -79,7 +75,7 @@ class Schedule:
                 
                 for grade in range(4):
 
-                    for group in prev_groups[grade]:
+                    for group in prev_groups[grade]: # adding previous groups to present groups
                         present_groups[grade].append(group)
                     
                     present_groups[grade] = sorted(present_groups[grade], key=lambda school_class: school_class.get_attendance(day, hour), reverse=True)
@@ -93,7 +89,9 @@ class Schedule:
                                 if group.add_children(another_group):
                                     present_groups[grade].remove(another_group)
                             new_groups[grade].append(group)
-
+                if hour == 3:
+                    print(" ")
+                    
                 for grade in range(4):
                     self.add_groups(new_groups[grade], day, hour)
 

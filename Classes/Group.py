@@ -24,8 +24,8 @@ class Group:
     def get_attendance(self, *arguments): # any number of arguments
         return sum(self.grade_attendance)
     
-    def get_grade_attendance(self, *arguments): # any number of arguments
-        return sum(self.grade_attendance)
+    def get_grade_attendance(self, grade): # any number of arguments
+        return self.grade_attendance[grade]
     
     def set_time(self, day, hour): #update of a group size and removing absent classes
         self.day = day
@@ -46,42 +46,45 @@ class Group:
         self.grade_attendance[grade] -= c.get_attendance(self.day, self.hour)
 
     def add_children(self, object):
-        if isinstance(object, Group): # TO DO
+        youngest_grade = -1
+        for i in range(4):
+            if self.grade_attendance[i] != 0:
+                youngest_grade = i # finding lowest grade in the group
+                break
+            
+        if isinstance(object, Group):
             if self.get_attendance() + object.get_attendance() <= 25:
-                for grade in range(4):
-                    self.subgroups[grade] += object.get_subgroup(grade)
-                self.grade_attendance[grade] += object.get_attendance()
+                for g in range(4):
+                    self.subgroups[g] += object.get_subgroup(g)
+                self.grade_attendance[g] += object.get_attendance()
                 return True # group added successfully
             else:
+                
+
                 return False  
         elif isinstance(object, ClassInSchool):
-            grade = -1
-            for i in range(4):
-                if self.grade_attendance[i] != 0:
-                    grade = i
-                    break
-
-            if self.get_attendance() + object.get_attendance(self.day,self.hour) <= 25:
-                grade = object.get_grade()
-                self.subgroups[grade].append(object)
-                self.grade_attendance[grade] += object.get_attendance(self.day,self.hour)
+            if self.get_attendance() + object.get_attendance(self.day,self.hour) <= 25: # adding class
+                youngest_grade = object.get_grade()
+                self.subgroups[youngest_grade].append(object)
+                self.grade_attendance[youngest_grade] += object.get_attendance(self.day,self.hour)
                 return True # class added successfully
             
-            elif self.get_grade_attendance() + object.get_attendance(self.day,self.hour) <= 25 and grade == object.get_grade():
-                self.subgroups[grade].append(object)
-                self.grade_attendance[grade] += object.get_attendance(self.day,self.hour)
-                grade += 1
-                while grade < 4 and self.get_attendance() + c.get_attendance(self.day,self.hour) > 25:
-                    tmp_subgroups = self.subgroups[grade]
+            elif self.get_grade_attendance(youngest_grade) + object.get_attendance(self.day,self.hour) <= 25 and youngest_grade == object.get_grade(): # exchanging class for a better fitting one
+                self.subgroups[youngest_grade].append(object)
+                self.grade_attendance[youngest_grade] += object.get_attendance(self.day,self.hour)
+                
+                g = 3
+                while youngest_grade < g and self.get_attendance() + c.get_attendance(self.day,self.hour) > 25:
+                    tmp_subgroups = self.subgroups[g]
                     for c in tmp_subgroups:
-                        self.subgroups[grade].remove(c)
-                        self.grade_attendance[grade] -= c.get_attendance(self.day,self.hour)
-                        # if self.get_attendance() + c.get_attendance(self.day,self.hour) > 25:
-                        #     self.subgroups[grade].remove(c)
-                        #     self.grade_attendance[grade] -= c.get_attendance(self.day,self.hour)
+                        self.subgroups[g].remove(c)
+                        self.grade_attendance[g] -= c.get_attendance(self.day,self.hour)
+                        # if self.get_attendance() + c.get_attendance(self.day,self.hour) > 25: # usuwanie tylko tyle klas ile potrzeba, a 
+                        #     self.subgroups[g].remove(c)
+                        #     self.grade_attendance[g] -= c.get_attendance(self.day,self.hour)
                         # else:
                         #     break
-                    grade += 1
+                    g -= 1
                 return True # class exchanged successfully
             else:
                 return False
