@@ -46,11 +46,11 @@ class Group:
                 break
         self.grade_attendance[grade] -= c.get_attendance(self.day, self.hour)
 
-    def add_children(self, object): # powinna zwracać listę wywalonych klas, True albo False imo
+    def add_children(self, object):
         youngest_grade = -1
         for i in range(4):
             if self.grade_attendance[i] != 0:
-                youngest_grade = i # finding lowest grade in the group (you can only add older groups)
+                youngest_grade = i # finding lowest grade in the group (you can only add a group with a higher or the same class)
                 break
             
         if isinstance(object, Group):
@@ -64,7 +64,7 @@ class Group:
             else:
                 the_same_grade_of_groups = object.get_grade_attendance(youngest_grade) != 0
                 possible_grade_transfer = self.get_grade_attendance(youngest_grade) + object.get_grade_attendance(youngest_grade) <= 25
-                if the_same_grade_of_groups and possible_grade_transfer: # transfering classes between groups
+                if the_same_grade_of_groups and possible_grade_transfer: # transfering of classes between groups at the same grade level
                     self.subgroups[youngest_grade] += object.get_subgroup(youngest_grade)
                     self.grade_attendance[youngest_grade] += object.get_grade_attendance(youngest_grade)
 
@@ -94,7 +94,6 @@ class Group:
                         if self.get_attendance() > 25: # whole subgroups are being removed until a group is lesser or equal to 25 
                             for c in self.subgroups[g]:
                                 self.remove_class(c)
-                                self.grade_attendance[g] -= c.get_attendance(self.day,self.hour)
                             g -= 1
                         else:
                             break

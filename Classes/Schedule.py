@@ -32,7 +32,7 @@ class Schedule:
 
     def create_groups(self, all_classes):
 
-        for day in range(3):
+        for day in range(5):
             prev_groups = [[], [], [], []]
             for hour in range(5):
                 present_groups = [[], [], [], []]
@@ -76,7 +76,7 @@ class Schedule:
 
                 new_groups = [[], [], [], []]
                 
-
+                # creating same-level groups
                 for grade in range(4):
 
                     for group in prev_groups[grade]: # adding previous groups to present groups
@@ -90,43 +90,45 @@ class Schedule:
                             present_groups[grade].remove(existing_group)
                             group.add_children(existing_group)
 
-                            # TO DO 
-
-                            ##################
                             for another_group in present_groups[grade]:
-                                if group.add_children(another_group): # w wyniku wywołania tutaj tej funkcji MOŻE nastąpić pozbawienie jakiejś z klas jej grupy 
-                                    #if another_group.get_attendance(day, hour) == 0:
-                                        present_groups[grade].remove(another_group)
-                                        # 3 opcje - nieudane, udane poprzez merge, udane poprzez wymianę(wtedy nie powinna być usuwana z present_groups
-                                        # i powinno zostać sprawdzone, które klasy zostały pozbawione grupy
-                                        
-                            ##################
+                                classes_before = group.get_list_of_classes()
+                                if isinstance(another_group, Group):
+                                    classes_before += another_group.get_list_of_classes()
+                                elif isinstance(another_group, ClassInSchool):
+                                    classes_before.append(another_group)
 
+                                if group.add_children(another_group): # as a result of calling this function here, one of the classes MAY be deprived of its group
+                                    present_groups[grade].remove(another_group)
+                                    classes_after = group.get_list_of_classes()
+                                    while classes_after:
+                                        for c1 in classes_before:
+                                            for c2 in classes_after:
+                                                if c1 == c2:
+                                                    classes_before.remove(c1)
+                                                    classes_after.remove(c2)
+                                    
+                                    re_sorting = False
+                                    for c in classes_before:
+                                        present_groups[c.get_grade()].append(c) # allowing reassignment to classes that have lost their group as a result of being replaced
+                                        re_sorting = True # classes intended for grouping should be sorted again
+                                    if re_sorting:
+                                        present_groups[grade] = sorted(present_groups[grade], key=lambda school_class: school_class.get_attendance(day, hour), reverse=True)
                             new_groups[grade].append(group)
                 
-                # creating cross-level groups  - aktualnie nie jest możliwe w pierszym takim łączeniu otrzymac 0 i 2 klasę w jednej grupie
-                for grade in range(3):
+                # creating cross-level groups
+                for grade in range(3): # starting with the oldest
                     younger_grade = sorted(new_groups[grade], key=lambda group: group.get_attendance(), reverse=True)
                     older_grade = sorted(new_groups[grade+1], key=lambda group: group.get_attendance(), reverse=True)
                     indices_to_remove = []
                     for older_group_index, older_group in enumerate(older_grade):
                         for younger_group in younger_grade:
-                            if younger_group.add_children(older_group):  # w wyniku wywołania tutaj tej funkcji NIE może nastąpić pozbawienie jakiejś z klas jej grupy 
+                            if younger_group.add_children(older_group):  # as a result of calling this function here, any class CANNOT be deprived of its group
                                 indices_to_remove.append(older_group_index)
                                 break
 
                     new_groups[grade+1] = [group for idx, group in enumerate(older_grade) if idx not in indices_to_remove] # removing duplicates
-                
-                # TO DO - algorytm do przydzielenia klas, które zostały wyrzucone ze swoich dotychczasowych grup
-                    
-                    ##################
 
-
-
-
-                    #################
-
-                if new_groups[0]: # usuwanie jedynej pustej grupy
+                if new_groups[0]: # removing the only empty group
                     if new_groups[0][0].get_attendance() == 0:
                         new_groups = [[], [], [], []]
 
