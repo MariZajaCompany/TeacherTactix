@@ -36,10 +36,11 @@ if __name__ == '__main__':
         school_class.print_children_layout()
 
     # utworzenie harmonogramu
-    schedule = Schedule()    
-    schedule.create_groups(all_classes)
+    schedule = Schedule(all_classes)    
+    schedule.create_groups()
 
     schedule.display_schedule()
 
-    schedule.save_as()
+    schedule.save_as("Results", "harmonogram")
+
                 
