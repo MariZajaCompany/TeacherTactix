@@ -2,9 +2,11 @@
 from Classes.ClassInSchool import ClassInSchool
 from Classes.Group import Group
 import copy
+import csv
 
 class Schedule:
-    def __init__(self):
+    def __init__(self, classes):
+        self.classes = classes
         self.scheduleTable = [[[] for _ in range(5)] for _ in range(5)]
 
     def add_groups(self, list_of_groups, day, hour):
@@ -30,14 +32,14 @@ class Schedule:
             print()
 
 
-    def create_groups(self, all_classes):
+    def create_groups(self):
 
         for day in range(5):
             prev_groups = [[], [], [], []]
             for hour in range(5):
                 present_groups = [[], [], [], []]
                 # check attendance
-                for school_class in all_classes:
+                for school_class in self.classes:
                     class_attendance = school_class.get_attendance(day, hour)
                     if class_attendance > 0:
                         present_groups[school_class.get_grade()].append(school_class)
@@ -46,6 +48,7 @@ class Schedule:
                     print(" ")
                 # update group size and elements
                 for i in range(4):
+                    expelled_groups = [[], [], [], []]
                     for group in prev_groups[i]:
                         group.set_time(day, hour)
                         for school_class in group.get_list_of_classes():
@@ -65,14 +68,21 @@ class Schedule:
                                     break
                         
                         # removing subgroups from too big groups
-                        subgroups = sorted(group.get_subgroups(), key=lambda subgroup: sum(c.get_attendance(day, hour) for c in subgroup), reverse=True)
+                        subgroups = group.get_subgroups() # starting with the oldest group
+                        expelled_group = Group(day, hour)
                         for subgroup in subgroups:
                             if group.get_attendance() > 25:
                                 for school_class in subgroup:
                                     group.remove_class(school_class) # we remove each class separately (not as a whole group) - debatable
-                                    present_groups[school_class.get_grade()].append(school_class)
+                                    #present_groups[school_class.get_grade()].append(school_class)
+                                    if not expelled_group.add_children(school_class):
+                                        expelled_groups[expelled_group.get_youngest_grade()].append(expelled_group)
+                                        expelled_group = Group(day, hour)
                             else:
                                 break
+                        if expelled_group.get_attendance != 0:
+                            expelled_groups[expelled_group.get_youngest_grade()].append(expelled_group)
+                    prev_groups[i] += expelled_groups[i]
 
                 new_groups = [[], [], [], []]
                 
@@ -135,8 +145,26 @@ class Schedule:
                 for grade in range(4):
                     self.add_groups(new_groups[grade], day, hour)
 
-                prev_groups = copy.deepcopy(new_groups) #aktualizacja prev_groups
+                prev_groups = copy.deepcopy(new_groups)
         
 
-    def save_as(self):
-        print("\nDobrze byłoby eksportować jako jakąś czytelną tabelę")
+    def save_as(self, filepath, filename):
+        days = ["", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek"]
+        filename = filepath + '\\'+ filename + ".csv"
+        with open(filename, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(days)
+             #row_index = 0
+            for hour in range(5):
+                max_number_of_groups = 0
+                for day in range(5):
+                    list_of_groups = self.scheduleTable[day][hour]
+                    if max_number_of_groups < len(list_of_groups):
+                        max_number_of_groups = len(list_of_groups)
+                hour_table =  [["" for _ in range(6)] for _ in range(max_number_of_groups)]
+                hour_table[0][0] = hour + 1
+                for day in range(5):
+                    list_of_groups = self.scheduleTable[day][hour]
+                    for i, group in enumerate(list_of_groups):
+                        hour_table[i][day + 1] = group.get_group_info()
+                writer.writerows(hour_table)

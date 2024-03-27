@@ -46,12 +46,16 @@ class Group:
                 break
         self.grade_attendance[grade] -= c.get_attendance(self.day, self.hour)
 
-    def add_children(self, object):
+    def get_youngest_grade(self):
         youngest_grade = -1
         for i in range(4):
             if self.grade_attendance[i] != 0:
                 youngest_grade = i # finding lowest grade in the group (you can only add a group with a higher or the same class)
                 break
+        return youngest_grade
+
+    def add_children(self, object):
+        youngest_grade = self.get_youngest_grade() # finding lowest grade in the group (you can only add a group with a higher or the same class)
             
         if isinstance(object, Group):
             if self.get_attendance() + object.get_attendance() <= 25: # merging groups together
@@ -117,3 +121,10 @@ class Group:
             if attendance != 0:
                 print(f"{school_class.get_class_name()} ({school_class.get_attendance(self.day, self.hour)})", end=" + ")
         print(",", end="")
+
+    def get_group_info(self):
+        group_info_str = ""
+        for school_class in self.get_list_of_classes():
+            group_info_str += f"{school_class.get_class_name()} ({school_class.get_attendance(self.day, self.hour)}) + "
+        group_info_str = group_info_str[:-3]
+        return group_info_str
