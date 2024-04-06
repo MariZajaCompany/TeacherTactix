@@ -10,7 +10,7 @@ def create_classes_from_folder(directory):
     csvFilesList = [plik for plik in os.listdir(directory) if plik.startswith(filePrefix) and plik.endswith('.csv')]
     createdClasses = []
 
-    for fileName in csvFilesList:
+    for fileName in sorted(csvFilesList):
         result = re.match(r'rozklad_(\d+)(\w)\.csv', fileName)
         if result:
             number, letter = result.groups()
@@ -27,19 +27,12 @@ def create_classes_from_folder(directory):
 if __name__ == '__main__':
     
     data_folder = "Data"
-    #data_folder = "Generated Data"
 
     all_classes = create_classes_from_folder(data_folder)
-    
-    for school_class in all_classes:
-        print(f"\nClassInSchool: {school_class.class_name}")
-        school_class.print_children_layout()
 
     # utworzenie harmonogramu
-    schedule = Schedule()    
-    schedule.create_groups(all_classes)
-
+    schedule = Schedule() 
+    schedule.new_create_groups(all_classes)
     schedule.display_schedule()
-
-    schedule.save_as()
+    #schedule.save_as()
                 
