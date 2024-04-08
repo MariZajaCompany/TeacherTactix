@@ -67,7 +67,7 @@ class Schedule:
                 for group in groups:
                     to_add = True
                     for h in range(hour, 5):
-                        if group.get_attendance(h) + new_attendance[h] >= 25:
+                        if group.get_attendance(h) + new_attendance[h] > 25:
                             to_add = False
                             break
                     if to_add and groups_added[i] == 0:
