@@ -25,9 +25,11 @@ def create_classes_from_folder(directory):
 
 if __name__ == '__main__':
     
-    data_folder = "Data"
-
-    all_classes = create_classes_from_folder(data_folder)
+    all_classes = create_classes_from_folder('Data')
+    
+    for school_class in all_classes:
+        print(f"\nClassInSchool: {school_class.class_name}")
+        school_class.print_children_layout()
 
     # utworzenie harmonogramu
     schedule = Schedule() 
