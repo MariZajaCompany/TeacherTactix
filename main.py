@@ -1,6 +1,7 @@
 
 from Classes.Schedule import Schedule
 from Classes.ClassInSchool import ClassInSchool
+import ControllerGUI
 
 import os
 import re
@@ -24,7 +25,7 @@ def create_classes_from_folder(directory):
 
 
 
-if __name__ == '__main__':
+def start():
     
     data_folder = "Data"
 
@@ -35,4 +36,7 @@ if __name__ == '__main__':
     schedule.new_create_groups(all_classes)
     schedule.display_schedule()
     #schedule.save_as()
+
+if __name__ == "__main__":
+    ControllerGUI.start_graphic_user_interface(start)
                 

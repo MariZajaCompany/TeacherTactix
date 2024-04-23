@@ -48,14 +48,11 @@ class Schedule:
                     end = True
                 groups_for_day.append(new_group)
 
-            print(f"Day {day + 1}")
-
             self.create_day_schedule(day, groups_for_day);
 
     def create_day_schedule(self, day, groups):
         day_schedule = []
         for hour in range(5):
-            print(f"Hour {hour + 1}")
             end = False
             groups_added = [0] * len(groups)
             day_schedule.append([])
