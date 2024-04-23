@@ -29,7 +29,7 @@ class ClassScheduleWindow(customtkinter.CTkToplevel):
         if data_array is None:
             print("dupa")
 
-        self.geometry(str(600*current_scale)+'x'+str(420*current_scale))
+        self.geometry(str(600 * current_scale) + 'x' + str(420 * current_scale))
         self.title("Dodaj klasę")
         self.attributes("-topmost", True)
 
@@ -61,7 +61,8 @@ class ClassScheduleWindow(customtkinter.CTkToplevel):
                 if data_array is None:
                     entry = customtkinter.CTkEntry(self, placeholder_text="0", width=40, height=40)
                 else:
-                    entry = customtkinter.CTkEntry(self, placeholder_text=data_array[row-1][column-1], width=40, height=40)
+                    entry = customtkinter.CTkEntry(self, placeholder_text=data_array[row - 1][column - 1], width=40,
+                                                   height=40)
                 setattr(self, entry_name, entry)
                 entry.grid(row=row, column=column, padx=10, pady=10)
 
@@ -117,7 +118,6 @@ class ClassScheduleWindow(customtkinter.CTkToplevel):
             messagebox.showwarning("Błąd", "Nie wszystkie wprowadzone wartości to liczby. Dane nie zostały zapisane.")
 
 
-
 class TeacherScheduleWindow(customtkinter.CTkToplevel):  # TODO dodać - czy to bedzie potrzebne??
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -170,7 +170,7 @@ class App(customtkinter.CTk):
         self.scaling_label = customtkinter.CTkLabel(self.sidebar_frame, text="Skalowanie interfejsu:", anchor="w")
         self.scaling_label.grid(row=7, column=0, padx=20, pady=(10, 0))
         self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame,
-                                                               values=["80%", "90%", "100%", "110%", "120%"],
+                                                               values=["100%", "110%", "120%"],
                                                                command=self.change_scaling_event)
         self.scaling_optionemenu.grid(row=8, column=0, padx=20, pady=(10, 20))
 
@@ -182,8 +182,8 @@ class App(customtkinter.CTk):
         self.logo_label = customtkinter.CTkLabel(self.main_frame, text="Witaj!", text_color=("#4d1535", "white"),
                                                  font=customtkinter.CTkFont(size=50, weight="bold"))
         self.logo_label.grid(row=0, column=0, columnspan=2, padx=30, pady=10, sticky="w")
-        #print(self._current_width)
-        #print(self._current_height)
+        # print(self._current_width)
+        # print(self._current_height)
         self.logo_label = customtkinter.CTkLabel(self.main_frame, text=user_manual_1,
                                                  wraplength=400, justify="left", font=customtkinter.CTkFont(size=20))
         self.logo_label.grid(row=1, column=0, columnspan=2, padx=20, pady=1, sticky="nw")
@@ -198,11 +198,15 @@ class App(customtkinter.CTk):
         self.logo_label.grid(row=4, column=0, columnspan=2, padx=20, pady=1, sticky="nw")
 
         # create view for entered data
-        self.tabview = customtkinter.CTkTabview(self.main_frame, width=400)
+        self.tabview = customtkinter.CTkTabview(self.main_frame, width=400, height=300)
         self.tabview.grid(row=0, column=2, columnspan=2, rowspan=4, padx=20, pady=10, sticky="nsew")
         self.tabview.add("Klasy")
         self.tabview.add("Nauczyciele")
         self.tabview.tab("Klasy").grid_columnconfigure(0, weight=1)  # configure grid of individual tabs
+
+        self.scrollable_frame = customtkinter.CTkScrollableFrame(self.tabview.tab("Klasy"),
+                                                                 label_text="Lista dodanych klas", height=300)
+        self.scrollable_frame.grid(row=0, column=0, rowspan=4, padx=10, pady=5, sticky="nsew")
 
         # create display for added classes
         self.labels = []
@@ -214,14 +218,13 @@ class App(customtkinter.CTk):
                                                   text="Miejsce na wprowadzone dane nauczycieli")  # TODO Nauczyciele?
         self.label_tab_2.grid(row=0, column=0, padx=20, pady=20)
 
-
         # create start algorithm button and refresh button
-        self.main_button_1 = customtkinter.CTkButton(self.main_frame, text="Odśwież", fg_color="#D4A5BC",
-                                                     border_width=1, border_color="#8D3863",
+        self.main_button_1 = customtkinter.CTkButton(self.main_frame, text="Odśwież",
+                                                     border_width=1, border_color="#8D3863", state="disabled",
                                                      text_color=("gray10", "#DCE4EE"), command=self.refresh_file_list)
         self.main_button_1.grid(row=4, column=2, padx=20, pady=20, sticky="nsew")
-        self.main_button_2 = customtkinter.CTkButton(self.main_frame, text="Stwórz grafik", fg_color="#D4A5BC",
-                                                     border_width=1, border_color="#8D3863",
+        self.main_button_2 = customtkinter.CTkButton(self.main_frame, text="Stwórz grafik",
+                                                     border_width=1, border_color="#8D3863", height=60,
                                                      text_color=("gray10", "#DCE4EE"), command=self.start_algorithm)
         self.main_button_2.grid(row=4, column=3, padx=20, pady=20, sticky="nsew")
 
@@ -238,17 +241,17 @@ class App(customtkinter.CTk):
         for idx, filename in enumerate(class_files):
             last_two_characters = filename[-6:-4]
             label_text = f"Klasa {filename}: {last_two_characters}"
-            label = customtkinter.CTkLabel(self.tabview.tab("Klasy"), text=label_text)
+            label = customtkinter.CTkLabel(self.scrollable_frame, text=label_text)
             label.grid(row=idx, column=0, padx=20, pady=10, sticky="nsew")
             self.labels.append(label)
 
-            delete_button = customtkinter.CTkButton(self.tabview.tab("Klasy"), text="Usuń", width=80,
+            delete_button = customtkinter.CTkButton(self.scrollable_frame, text="Usuń", width=60,
                                                     command=lambda f=filename: self.delete_file(f))
             delete_button.grid(row=idx, column=2, padx=10, pady=10, sticky="nsew")
             self.buttons.append(delete_button)
 
-            edit_button = customtkinter.CTkButton(self.tabview.tab("Klasy"), text="Edytuj", width=80,
-                                                    command=lambda f=filename: self.edit_file(f))
+            edit_button = customtkinter.CTkButton(self.scrollable_frame, text="Edytuj", width=60,
+                                                  command=lambda f=filename: self.edit_file(f))
             edit_button.grid(row=idx, column=3, padx=10, pady=10, sticky="nsew")
             self.buttons.append(edit_button)
 
@@ -284,9 +287,8 @@ class App(customtkinter.CTk):
 
     def change_scaling_event(self, new_scaling: str):
         global current_scale
-        new_scaling_float = int(new_scaling.replace("%", "")) / 100
-        current_scale = new_scaling_float
-        customtkinter.set_widget_scaling(new_scaling_float)
+        current_scale = int(new_scaling.replace("%", "")) / 100
+        customtkinter.set_widget_scaling(current_scale)
 
     def open_toplevel_class(self, data_array):
         if self.toplevel_window is None or not self.toplevel_window.winfo_exists():
@@ -305,8 +307,6 @@ class App(customtkinter.CTk):
         print("Algorytm rozpoczęty")
 
 
-
-
-if __name__ == "__main__":
+def start_graphic_user_interface():
     app = App()
     app.mainloop()
