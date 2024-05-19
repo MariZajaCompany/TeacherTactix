@@ -10,11 +10,11 @@ customtkinter.set_default_color_theme("magenta.json")
 
 current_scale = 1
 data_directory = "Data"
-user_manual_1 = "------- Instrukcja obsługi ------- \nWersja 1.2.7 \nProgram ten służy do generowania grafiku " \
+user_manual_1 = "------- Instrukcja obsługi ------- \nWersja 1.2.8 \nProgram ten służy do generowania grafiku " \
                 "dla grup w świetlicy."
-user_manual_2 = "Aby dodać grafik klasy lub nauczyciela kliknij przycisk po lewej stronie. Przyciski poniżej" \
+user_manual_2 = "Aby dodać grafik dla klasy kliknij przycisk po lewej stronie. Przyciski poniżej" \
                 " pozwalają na dostosowanie interfejsu użytkownika."
-user_manual_3 = "W oknie po prawej zostaną wyświelone dodane grafiki. Przycisk (Odśwież) pozwala na aktualizacje listy."
+user_manual_3 = "W oknie po prawej zostaną wyświelone dodane grafiki. Zamknięcie programu nie usuwa dodanych klas."
 user_manual_4 = "Naciśnij przycisk (Stwórz grafik), kiedy dodane zostaną wszystkie klasy. Rozpocznie się działanie algorytmu."
 week_days = ["Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek"]
 day_hours = ["12:30 - 13:00", "13:00 - 14:00", "14:00 - 15:00", "15:00 - 16:00", "16:00 - 17:00"]
@@ -25,9 +25,6 @@ class ClassScheduleWindow(customtkinter.CTkToplevel):
         super().__init__(root)
         self.root_reference = root
         self.data_array = data_array
-
-        if data_array is None:
-            print("dupa")
 
         self.geometry(str(600 * current_scale) + 'x' + str(420 * current_scale))
         self.title("Dodaj klasę")
@@ -102,31 +99,27 @@ class ClassScheduleWindow(customtkinter.CTkToplevel):
                         value = self.data_array[row - 1][column - 1]
                 row_values.append(value)  # Append the value to the row list
             entry_values.append(row_values)  # Append the row list to the main list
-        print(class_file)
-        print(entry_values)  # TODO delete all prints
 
         if all(value.isdigit() for row in entry_values for value in row):
             with open(class_file, 'w', newline='') as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerows(entry_values)
-            print(f"Data saved to {class_file}")
             messagebox.showinfo("Zapis udany", "Klasa została dodana.")
             self.root_reference.refresh_file_list()
             self.destroy()
         else:
-            print("Not all values are complete numbers. Data not saved.")
             messagebox.showwarning("Błąd", "Nie wszystkie wprowadzone wartości to liczby. Dane nie zostały zapisane.")
 
 
-class TeacherScheduleWindow(customtkinter.CTkToplevel):  # TODO dodać - czy to bedzie potrzebne??
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.geometry("600x300")
-        self.title("Dodaj nauczyciela")
-        self.attributes("-topmost", True)
+# class TeacherScheduleWindow(customtkinter.CTkToplevel):  # TODO dodać - czy to bedzie potrzebne??
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.geometry("600x300")
+#         self.title("Dodaj nauczyciela")
+#         self.attributes("-topmost", True)
 
-        self.label = customtkinter.CTkLabel(self, text="Dodaj grafik dla nauczyciela:")
-        self.label.grid(row=0, column=0, padx=20, pady=20)
+#         self.label = customtkinter.CTkLabel(self, text="Dodaj grafik dla nauczyciela:")
+#         self.label.grid(row=0, column=0, padx=20, pady=20)
 
 
 class App(customtkinter.CTk):
@@ -156,9 +149,9 @@ class App(customtkinter.CTk):
         self.sidebar_button_1 = customtkinter.CTkButton(self.sidebar_frame, text="Dodaj klasę",
                                                         command=lambda: self.open_toplevel_class(None))
         self.sidebar_button_1.grid(row=1, column=0, padx=20, pady=10)
-        self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, text="Dodaj nauczyciela",
-                                                        command=self.open_toplevel_teacher, state="disabled")
-        self.sidebar_button_2.grid(row=2, column=0, padx=20, pady=10)
+        # self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, text="Dodaj nauczyciela",
+        #                                                 command=self.open_toplevel_teacher, state="disabled")
+        # self.sidebar_button_2.grid(row=2, column=0, padx=20, pady=10)
 
         self.toplevel_window = None  # definition needed for the top window function
 
@@ -184,8 +177,7 @@ class App(customtkinter.CTk):
         self.logo_label = customtkinter.CTkLabel(self.main_frame, text="Witaj!", text_color=("#4d1535", "white"),
                                                  font=customtkinter.CTkFont(size=50, weight="bold"))
         self.logo_label.grid(row=0, column=0, columnspan=2, padx=30, pady=10, sticky="w")
-        # print(self._current_width)
-        # print(self._current_height)
+
         self.logo_label = customtkinter.CTkLabel(self.main_frame, text=user_manual_1,
                                                  wraplength=400, justify="left", font=customtkinter.CTkFont(size=20))
         self.logo_label.grid(row=1, column=0, columnspan=2, padx=20, pady=1, sticky="nw")
@@ -203,7 +195,7 @@ class App(customtkinter.CTk):
         self.tabview = customtkinter.CTkTabview(self.main_frame, width=400, height=300)
         self.tabview.grid(row=0, column=2, columnspan=2, rowspan=4, padx=20, pady=10, sticky="nsew")
         self.tabview.add("Klasy")
-        self.tabview.add("Nauczyciele")
+        #self.tabview.add("Nauczyciele")
         self.tabview.tab("Klasy").grid_columnconfigure(0, weight=1)  # configure grid of individual tabs
 
         self.scrollable_frame = customtkinter.CTkScrollableFrame(self.tabview.tab("Klasy"),
@@ -215,20 +207,22 @@ class App(customtkinter.CTk):
         self.buttons = []
         self.refresh_file_list()
 
-        self.tabview.tab("Nauczyciele").grid_columnconfigure(0, weight=1)
-        self.label_tab_2 = customtkinter.CTkLabel(self.tabview.tab("Nauczyciele"),
-                                                  text="Miejsce na wprowadzone dane nauczycieli")  # TODO Nauczyciele?
-        self.label_tab_2.grid(row=0, column=0, padx=20, pady=20)
+        # self.tabview.tab("Nauczyciele").grid_columnconfigure(0, weight=1)
+        # self.label_tab_2 = customtkinter.CTkLabel(self.tabview.tab("Nauczyciele"),
+        #                                           text="Miejsce na wprowadzone dane nauczycieli")
+        # self.label_tab_2.grid(row=0, column=0, padx=20, pady=20)
+
 
         # create start algorithm button and refresh button
-        self.main_button_1 = customtkinter.CTkButton(self.main_frame, text="Odśwież",
-                                                     border_width=1, border_color="#8D3863", state="disabled",
-                                                     text_color=("gray10", "#DCE4EE"), command=self.refresh_file_list)
-        self.main_button_1.grid(row=4, column=2, padx=20, pady=20, sticky="nsew")
+
+        # self.main_button_1 = customtkinter.CTkButton(self.main_frame, text="Odśwież",
+        #                                              border_width=1, border_color="#8D3863", state="disabled",
+        #                                              text_color=("gray10", "#DCE4EE"), command=self.refresh_file_list)
+        # self.main_button_1.grid(row=4, column=2, padx=20, pady=20, sticky="nsew")
         self.main_button_2 = customtkinter.CTkButton(self.main_frame, text="Stwórz grafik",
                                                      border_width=1, border_color="#8D3863", height=60,
                                                      text_color=("gray10", "#DCE4EE"), command=self.start_algorithm)
-        self.main_button_2.grid(row=4, column=3, padx=20, pady=20, sticky="nsew")
+        self.main_button_2.grid(row=4, column=2,columnspan=2, padx=20, pady=20, sticky="nsew")
 
     def refresh_file_list(self):
         if not os.path.exists(data_directory):  # Check if "Data" directory exists
@@ -277,7 +271,6 @@ class App(customtkinter.CTk):
 
         last_two_characters = filename[-6:-4]
         data_array.append(last_two_characters)
-        print(data_array)
         self.open_toplevel_class(data_array)
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
@@ -298,15 +291,13 @@ class App(customtkinter.CTk):
         else:
             self.toplevel_window.focus()  # if window exists focus it
 
-    def open_toplevel_teacher(self):
-        if self.toplevel_window is None or not self.toplevel_window.winfo_exists():
-            self.toplevel_window = TeacherScheduleWindow(self)  # create window if its None or destroyed
-        else:
-            self.toplevel_window.focus()  # if window exists focus it
+    # def open_toplevel_teacher(self):
+    #     if self.toplevel_window is None or not self.toplevel_window.winfo_exists():
+    #         self.toplevel_window = TeacherScheduleWindow(self)
+    #     else:
+    #         self.toplevel_window.focus()
 
     def start_algorithm(self):
-        # TODO backend-frontend
-        print("Algorytm rozpoczęty")
         self.start()
 
 
