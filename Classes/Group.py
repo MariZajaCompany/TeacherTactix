@@ -9,7 +9,7 @@ class Group:
     def get_list_of_classes(self):
         return self.subgroups
     
-    def get_attendance(self, hour): # any number of arguments
+    def get_attendance(self, hour):
         return self.attendance[hour]
 
     def new_add_children(self, day, object):

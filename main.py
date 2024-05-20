@@ -35,8 +35,10 @@ def start():
     schedule = Schedule() 
     schedule.new_create_groups(all_classes)
     schedule.display_schedule()
-    #schedule.save_as()
+    #schedule.save_as("Results", "harmonogram")
+    schedule.save_as_xlsx("Results", "harmonogram_excel")
 
 if __name__ == "__main__":
-    ControllerGUI.start_graphic_user_interface(start)
+    start()
+    #ControllerGUI.start_graphic_user_interface(start)
                 
