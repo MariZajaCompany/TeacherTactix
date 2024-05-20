@@ -10,11 +10,11 @@ customtkinter.set_default_color_theme("magenta.json")
 
 current_scale = 1
 data_directory = "Data"
-user_manual_1 = "------- Instrukcja obsługi ------- \nWersja 1.2.8 \nProgram ten służy do generowania grafiku " \
-                "dla grup w świetlicy."
-user_manual_2 = "Aby dodać grafik dla klasy kliknij przycisk po lewej stronie. Przyciski poniżej" \
-                " pozwalają na dostosowanie interfejsu użytkownika."
-user_manual_3 = "W oknie po prawej zostaną wyświelone dodane grafiki. Zamknięcie programu nie usuwa dodanych klas."
+user_manual_1 = "------- Instrukcja obsługi ------- \nWersja 1.2.9 \nProgram ten służy do generowania grafiku " \
+                "dla grup w świetlicy. Dostosuj wygląd interfejsu opcjami w lewym dolnym rogu."
+user_manual_2 = "Aby dodać grafik dla klasy kliknij przycisk po lewej stronie. Przycisk poniżej pozwala na zmianę ram " \
+                "czasowych dla harmonogramu. Zmiany te resetują się przy ponownym uruchomieniu."
+user_manual_3 = "W oknie po prawej zostaną wyświelone dodane harmonogramy. Zamknięcie programu nie usuwa dodanych klas."
 user_manual_4 = "Naciśnij przycisk (Stwórz grafik), kiedy dodane zostaną wszystkie klasy. Rozpocznie się działanie algorytmu."
 week_days = ["Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek"]
 day_hours = ["12:30 - 13:00", "13:00 - 14:00", "14:00 - 15:00", "15:00 - 16:00", "16:00 - 17:00"]
@@ -121,6 +121,38 @@ class ClassScheduleWindow(customtkinter.CTkToplevel):
 #         self.label = customtkinter.CTkLabel(self, text="Dodaj grafik dla nauczyciela:")
 #         self.label.grid(row=0, column=0, padx=20, pady=20)
 
+class DayHoursWindow(customtkinter.CTkToplevel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.geometry("245x430")
+        self.title("Zmień godziny")
+        self.attributes("-topmost", True)
+
+        self.label = customtkinter.CTkLabel(self, text="Zmień godziny dla grafików klas\nFormat powinien zostać "
+                                                       "zachowany!\n HH:MM - HH:MM")
+        self.label.grid(row=0, column=0, padx=20, pady=(10, 5))
+
+        for i in range(1, 6):
+            hour_name = f"hour_{i}"
+            hour = customtkinter.CTkEntry(self, placeholder_text=day_hours[i - 1], width=100,
+                                          height=40)
+            setattr(self, hour_name, hour)
+            hour.grid(row=i, column=0, padx=10, pady=10)
+
+        self.save_button = customtkinter.CTkButton(self, text="Zapisz", fg_color="#D4A5BC", border_width=1,
+                                                   border_color="#8D3863", text_color=("gray10", "#DCE4EE"), width=40,
+                                                   command=self.save_hours)
+        self.save_button.grid(row=7, column=0, padx=10, pady=10, sticky="nsew")
+
+    def save_hours(self):
+        for i in range(1, 6):
+            hour_name = f"hour_{i}"
+            hour = getattr(self, hour_name)  # Get the entry object
+            value = hour.get()  # Get the value of the entry
+            if value != "":
+                day_hours[i - 1] = value
+        messagebox.showinfo("Zapis udany", "Godziny zostały zmienione.")
+        self.destroy()
 
 class App(customtkinter.CTk):
     def __init__(self, start):
@@ -152,6 +184,9 @@ class App(customtkinter.CTk):
         # self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, text="Dodaj nauczyciela",
         #                                                 command=self.open_toplevel_teacher, state="disabled")
         # self.sidebar_button_2.grid(row=2, column=0, padx=20, pady=10)
+        self.sidebar_button_3 = customtkinter.CTkButton(self.sidebar_frame, text="Zmień godziny",
+                                                        command=lambda: self.open_toplevel_day_hours())
+        self.sidebar_button_3.grid(row=2, column=0, padx=20, pady=10)
 
         self.toplevel_window = None  # definition needed for the top window function
 
@@ -296,6 +331,12 @@ class App(customtkinter.CTk):
     #         self.toplevel_window = TeacherScheduleWindow(self)
     #     else:
     #         self.toplevel_window.focus()
+
+    def open_toplevel_day_hours(self):
+        if self.toplevel_window is None or not self.toplevel_window.winfo_exists():
+            self.toplevel_window = DayHoursWindow(self)
+        else:
+            self.toplevel_window.focus()
 
     def start_algorithm(self):
         self.start()
