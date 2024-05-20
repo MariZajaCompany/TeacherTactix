@@ -11,3 +11,17 @@ class ScheduleCell:
         for c in self.classes:
             print(f"{c.get_class_name()}", end=' ')
         print(f"({self.attendance})", end='')
+    
+    def get_info_with_sizes(self):
+        info = ""
+        for c in self.classes:
+            info += str(c.get_class_name()) + " "
+        info += "(" + str(self.attendance) + ")"
+        return info
+    
+    def get_info(self):
+        info = ""
+        for c in self.classes:
+            info += str(c.get_class_name()) + " "
+        info = info[:-1]
+        return info
