@@ -7,9 +7,10 @@ import csv
 import os
 import openpyxl
 from openpyxl import Workbook
-from openpyxl.styles import Alignment, Border, Side, PatternFill
+from openpyxl.styles import Alignment, Border, Side, PatternFill, Font
 
 TESTING = True
+ROWS_PER_GROUP = 3
 
 class Schedule:
     def __init__(self):
@@ -127,13 +128,20 @@ class Schedule:
             max_number_of_groups = 0
             for day in range(5):
                 schedule_cells = self.scheduleTable[day][hour]
-                if max_number_of_groups < len(schedule_cells):
-                    max_number_of_groups = len(schedule_cells)
+                number_of_groups = 0
+                for cell in schedule_cells:
+                    if cell.attendance != 0:
+                        number_of_groups += 1
+                if max_number_of_groups < number_of_groups:
+                    max_number_of_groups = number_of_groups
 
             hour_table = [["" for _ in range(6)] for _ in range(max_number_of_groups)]
             hour_table[0][0] = row_names[hour]
             for day in range(5):
-                schedule_cells = self.scheduleTable[day][hour]
+                schedule_cells = []
+                for cell in self.scheduleTable[day][hour]:
+                    if cell.attendance != 0:
+                        schedule_cells.append(cell)
                 for i, cell in enumerate(schedule_cells):
                     if not TESTING:
                         hour_table[i][day + 1] = cell.get_info()
@@ -144,7 +152,8 @@ class Schedule:
             for row in hour_table:
                 ws.append(row)
                 ws.append(["" for _ in range(6)])
-                table_length += 2
+                ws.append(["" for _ in range(6)])
+                table_length += ROWS_PER_GROUP
 
             # Zastosowanie zawijania tekstu do wszystkich komórek
             for row in ws.iter_rows(min_row=1, max_col=6, max_row=ws.max_row):
@@ -176,7 +185,7 @@ class Schedule:
         empty_block = False
         start_row = None
         for col in range(1, 6):
-            for row in range(2, table_length + 2, 2):
+            for row in range(2, table_length + 2, ROWS_PER_GROUP):
                 cell_value = ws[f'{columns[col]}{row}'].value
                 if cell_value is None or cell_value == '':  # Pusta komórka
                     if not empty_block:
@@ -187,25 +196,61 @@ class Schedule:
                         ws.merge_cells(start_row=start_row, start_column=col+1, end_row=row - 1, end_column=col+1)
                         empty_block = False
 
-        # Ustawianie szerokości kolumn
-        for col in columns:
-            ws.column_dimensions[col].width = 20
-
-        # Ustawianie wysokości wierszy na nauczycieli
-        for row in range(3, table_length + 3, 2):
-            ws.row_dimensions[row].height = 30
-
-        # Ustawienie środkowania dla kolumny A
-        for cell in ws['A']:
-            cell.alignment = Alignment(horizontal='center', vertical='center')
-
-        
         # Przypisanie stylu ramki
-        border_style = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
+        side = Side(style='thin', color='ffffff')
+        border_style = Border(left=side, right=side, top=side, bottom=side)
         for i in range(1, table_length + 2):
             for j in range(1, 7):
                 cell = ws.cell(row=i, column=j)
                 cell.border = border_style
+                ws[row][col].font = Font(name='Century Gothic', size=10, bold=True, italic=False, color='656565')
+
+        # Ustawianie szerokości kolumn
+        for col in columns:
+            ws.column_dimensions[col].width = 20
+        
+        for row in range(2, table_length + 2, ROWS_PER_GROUP):
+            for col in range(1, 6):
+                color = 'ffffff' #dadada
+                fill = PatternFill(start_color=color, end_color=color, fill_type='solid')
+                ws[row][col].fill = fill
+                ws[row][col].font = Font(name='Century Gothic', size=12, bold=True, italic=False, color='9b547c')
+        
+
+        # Ustawianie wysokości i wyśrodkowanie wierszy na nauczycieli
+        for row in range(3, table_length + 3, ROWS_PER_GROUP):
+            ws.row_dimensions[row].height = 40
+            for col in range(1, 6):
+                ws[row][col].alignment = Alignment(horizontal='center', vertical='center', wrapText=True)
+                color = 'eaeaea'
+                fill = PatternFill(start_color=color, end_color=color, fill_type='solid')
+                ws[row][col].fill = fill
+                
+
+        # Wyśrodkowanie wierszy na sale
+        for row in range(4, table_length + 4, ROWS_PER_GROUP):
+            for col in range(1, 6):
+                color = 'eaeaea'
+                fill = PatternFill(start_color=color, end_color=color, fill_type='solid')
+                ws[row][col].fill = fill
+                ws[row][col].alignment = Alignment(horizontal='center', vertical='center')
+
+        # Ustawienie środkowania i kolor dla kolumny A
+        for row in range(0, table_length + 1):
+            ws['A'][row].alignment = Alignment(horizontal='center', vertical='center', textRotation=90, wrapText = True)
+            color = 'cca9bf'
+            fill = PatternFill(start_color=color, end_color=color, fill_type='solid')
+            ws['A'][row].fill = fill
+            ws['A'][row].font = Font(name='Century Gothic', size=20, bold=True, italic=False, color='ffffff')
+            
+        # Ustawienie środkowania i kolor dla wiersza 1
+        for col in range(0, 6):
+            ws.row_dimensions[1].height = 30
+            ws[columns[col]][0].alignment = Alignment(horizontal='center', vertical='center')
+            color = '656565'
+            fill = PatternFill(start_color=color, end_color=color, fill_type='solid')
+            ws[columns[col]][0].fill = fill
+            ws[columns[col]][0].font =Font(name='Century Gothic', size=10, bold=True, italic=False, color='ffffff')
 
         full_path = os.path.join(filepath, filename + ".xlsx")
         counter = 1
