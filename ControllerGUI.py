@@ -10,7 +10,7 @@ customtkinter.set_default_color_theme("magenta.json")
 
 current_scale = 1
 data_directory = "Data"
-user_manual_1 = "------- Instrukcja obsługi ------- \nWersja 1.2.9 \nProgram ten służy do generowania grafiku " \
+user_manual_1 = "------- Instrukcja obsługi ------- \nWersja 1.3.1 \nProgram ten służy do generowania grafiku " \
                 "dla grup w świetlicy. Dostosuj wygląd interfejsu opcjami w lewym dolnym rogu."
 user_manual_2 = "Aby dodać grafik dla klasy kliknij przycisk po lewej stronie. Przycisk poniżej pozwala na zmianę ram " \
                 "czasowych dla harmonogramu. Zmiany te resetują się przy ponownym uruchomieniu."
