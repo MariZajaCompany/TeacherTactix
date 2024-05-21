@@ -251,7 +251,7 @@ class Schedule:
                             ws.merge_cells(start_row=start_row, start_column=col, end_row=table_length + 1, end_column=col)
                         empty_block = False
         if empty_block:
-                ws.merge_cells(start_row=start_row, start_column=col, end_row=table_length + 1, end_column=col)
+                ws.merge_cells(start_row=start_row, start_column=6, end_row=table_length + 1, end_column=6)
 
         # Przypisanie stylu ramki
         side = Side(style='thin', color='ffffff')
