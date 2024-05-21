@@ -310,6 +310,6 @@ class Schedule:
             ws[columns[col]][0].font =Font(name='Century Gothic', size=10, bold=True, italic=False, color='ffffff')
 
         full_path = os.path.join(filepath, filename + ".xlsx")
-        if os.path.exists(full_path):
-            os.remove(full_path)
+        # if os.path.exists(full_path):
+        #     os.remove(full_path)
         wb.save(full_path)

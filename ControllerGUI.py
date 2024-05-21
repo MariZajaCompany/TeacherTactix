@@ -342,23 +342,15 @@ class App(customtkinter.CTk):
     def start_algorithm(self):
         global file_path
         file_path = save_file_dialog()
-        # if os.path.exists(file_path):
-        #     if is_file_open(file_path):
-        #         print(f"File '{file_path}' is currently open and cannot be replaced.")
-        #         return
-        self.start()
-        
-
-def is_file_open(file_path):
-        for proc in psutil.process_iter():
+        if os.path.exists(file_path):
             try:
-                files = proc.open_files()
-                for f in files:
-                    if file_path == f.path:
-                        return True
-            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                pass
-        return False
+                os.remove(file_path)
+            except PermissionError:
+                print(f"File '{file_path}' is currently open and cannot be replaced.")
+                messagebox.showwarning("Błąd",
+                                       f"Plik '{file_path}' jest otwarty i nie można zmienić jego zawartości.")
+                return
+        self.start()
 
 def save_file_dialog():
         file_path = filedialog.asksaveasfilename(
