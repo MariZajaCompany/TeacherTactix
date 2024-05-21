@@ -8,6 +8,7 @@ import os
 import openpyxl
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Side, PatternFill, Font
+import ControllerGUI
 
 TESTING = True
 ROWS_PER_GROUP = 3
@@ -118,7 +119,8 @@ class Schedule:
 
     def save_as_xlsx(self, filepath, filename):
         column_names = ["Godzina", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek"]
-        row_names = ["11:30 - 12:30", "12:30 - 13:30", "13:30 - 14:30", "14:30 - 15:30", "15:30 - 16:30", "16:30 - 17:00"]
+        #row_names = ["11:30 - 12:30", "12:30 - 13:30", "13:30 - 14:30", "14:30 - 15:30", "15:30 - 16:30", "16:30 - 17:00"]
+        row_names = ControllerGUI.day_hours
         wb = Workbook()
         ws = wb.active
         ws.append(column_names)
@@ -253,8 +255,6 @@ class Schedule:
             ws[columns[col]][0].font =Font(name='Century Gothic', size=10, bold=True, italic=False, color='ffffff')
 
         full_path = os.path.join(filepath, filename + ".xlsx")
-        counter = 1
-        while os.path.exists(full_path):
-            full_path = os.path.join(filepath, f"{filename}({counter}).xlsx")
-            counter += 1
+        if os.path.exists(full_path):
+            os.remove(full_path)
         wb.save(full_path)

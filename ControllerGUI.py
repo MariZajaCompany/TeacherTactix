@@ -1,7 +1,7 @@
 import csv
 import os
 import re
-from tkinter import messagebox
+from tkinter import messagebox, filedialog
 
 import customtkinter
 
@@ -10,15 +10,15 @@ customtkinter.set_default_color_theme("magenta.json")
 
 current_scale = 1
 data_directory = "Data"
-user_manual_1 = "------- Instrukcja obsługi ------- \nWersja 1.2.9 \nProgram ten służy do generowania grafiku " \
+user_manual_1 = "------- Instrukcja obsługi ------- \nWersja 1.3.1 \nProgram ten służy do generowania grafiku " \
                 "dla grup w świetlicy. Dostosuj wygląd interfejsu opcjami w lewym dolnym rogu."
 user_manual_2 = "Aby dodać grafik dla klasy kliknij przycisk po lewej stronie. Przycisk poniżej pozwala na zmianę ram " \
                 "czasowych dla harmonogramu. Zmiany te resetują się przy ponownym uruchomieniu."
 user_manual_3 = "W oknie po prawej zostaną wyświelone dodane harmonogramy. Zamknięcie programu nie usuwa dodanych klas."
 user_manual_4 = "Naciśnij przycisk (Stwórz grafik), kiedy dodane zostaną wszystkie klasy. Rozpocznie się działanie algorytmu."
 week_days = ["Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek"]
-day_hours = ["12:30 - 13:00", "13:00 - 14:00", "14:00 - 15:00", "15:00 - 16:00", "16:00 - 17:00"]
-
+day_hours = ["12:30 - 13:30", "13:30 - 14:30", "14:30 - 15:00", "15:00 - 16:00", "16:00 - 17:00"]
+file_path = ""
 
 class ClassScheduleWindow(customtkinter.CTkToplevel):
     def __init__(self, root, data_array):
@@ -181,9 +181,9 @@ class App(customtkinter.CTk):
         self.sidebar_button_1 = customtkinter.CTkButton(self.sidebar_frame, text="Dodaj klasę",
                                                         command=lambda: self.open_toplevel_class(None))
         self.sidebar_button_1.grid(row=1, column=0, padx=20, pady=10)
-        # self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, text="Dodaj nauczyciela",
-        #                                                 command=self.open_toplevel_teacher, state="disabled")
-        # self.sidebar_button_2.grid(row=2, column=0, padx=20, pady=10)
+        # self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, text="Test",
+        #                                                 command=self.save_file_dialog())
+        # self.sidebar_button_2.grid(row=3, column=0, padx=20, pady=10)
         self.sidebar_button_3 = customtkinter.CTkButton(self.sidebar_frame, text="Zmień godziny",
                                                         command=lambda: self.open_toplevel_day_hours())
         self.sidebar_button_3.grid(row=2, column=0, padx=20, pady=10)
@@ -339,8 +339,18 @@ class App(customtkinter.CTk):
             self.toplevel_window.focus()
 
     def start_algorithm(self):
+        global file_path
+        file_path = save_file_dialog()
         self.start()
-
+    
+def save_file_dialog():
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".xlsx",
+            filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")],
+            title="Zapisz harmonogram jako...",
+            initialfile="harmonogram.xlsx"
+        )
+        return file_path
 
 def start_graphic_user_interface(start):
     app = App(start)
