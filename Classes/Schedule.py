@@ -65,7 +65,7 @@ class Schedule:
             end = False
             groups_added = [0] * len(groups)
             day_schedule.append([])
-            #all_children = sum(g.get_attendance(hour) for g in groups)
+            all_children = sum(g.get_attendance(hour) for g in groups)
             while not end:
                 new_group = []
                 youngest = 3
@@ -78,7 +78,7 @@ class Schedule:
                             to_add = False
                             break
                     if to_add and groups_added[i] == 0:
-                        if len(new_group) == 0 or (abs(group.get_oldest_grade() - youngest) <= 1):
+                        if len(new_group) == 0 or (abs(group.get_oldest_grade() - youngest) <= 2) or all_children < 25:
                             new_group += group.get_list_of_classes()
                             for h in range(hour, 5):   
                                 new_attendance[h] += group.get_attendance(h)
