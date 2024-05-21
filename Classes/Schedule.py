@@ -26,67 +26,117 @@ class Schedule:
                     cell.display_info()
                     print(',', end = '')
                 print()
+        print()
 
-    def check_grades(self, group, school_class):
-        class_grade = school_class.get_grade()
-        for g in group.get_list_of_classes():
-            difference = abs(g.get_grade() - class_grade)
-            if difference > 1:
-                return False
-        return True
-
-    def new_create_groups(self, all_classes):
+    def create_groups(self, all_classes):
+        
         for day in range(5):
-            end = False
-            classes_added = [0] * len(all_classes)
-            groups_for_day = []
-            while not end:
-                new_group = Group(day)
-                i = 0
+            day_schedule = []
+            prev_groups = [[], [], [], []]
+            for hour in range(5):
+                day_schedule.append([])
+                present_groups = [[], [], [], []]
+
+                # check attendance
                 for school_class in all_classes:
-                    to_add = True
-                    for hour in range(5):
-                        if school_class.get_attendance(day, hour) + new_group.get_attendance(hour) > 25:
-                            to_add = False
-                            break
-                    if to_add and classes_added[i] == 0 and self.check_grades(new_group, school_class):
-                        new_group.new_add_children(day, school_class)
-                        classes_added[i] = 1
-                    i += 1
-                if sum(classes_added) == len(classes_added):
-                    end = True
-                groups_for_day.append(new_group)
+                    class_attendance = school_class.get_attendance(day, hour)
+                    if class_attendance > 0:
+                        present_groups[school_class.get_grade()].append(school_class)
+                
+                # update group size and elements
+                for i in range(4):
+                    expelled_groups = [[], [], [], []]
+                    for group in prev_groups[i]:
+                        group.set_time(day, hour)
+                        
+                        for school_class in group.get_list_of_classes():
+                            for grade in range(4):
+                                present_groups[grade] = [c for c in present_groups[grade] if school_class.get_class_name() != c.get_class_name()]
 
-            self.create_day_schedule(day, groups_for_day);
+                        # removing classes from too big subgroups
+                        for g in range(4):
+                            subgroup = sorted(group.get_subgroup(g), key=lambda school_class: school_class.get_attendance(day, hour), reverse=True)
+                            for school_class in subgroup:
+                                if group.get_grade_attendance(g) > 25:
+                                    group.remove_class(school_class)
+                                    present_groups[school_class.get_grade()].append(school_class)
+                                else:
+                                    break
+                        
+                        # removing subgroups from too big groups
+                        subgroups = group.get_subgroups() # starting with the oldest group
+                        expelled_group = Group(day, hour)
+                        for subgroup in subgroups:
+                            if group.get_attendance() > 25:
+                                for school_class in subgroup:
+                                    group.remove_class(school_class)
+                                    if not expelled_group.add_children(school_class):
+                                        expelled_groups[expelled_group.get_youngest_grade()].append(expelled_group)
+                                        expelled_group = Group(day, hour)
+                            else:
+                                break
+                        if expelled_group.get_attendance != 0:
+                            expelled_groups[expelled_group.get_youngest_grade()].append(expelled_group)
+                    prev_groups[i] += expelled_groups[i]
 
-    def create_day_schedule(self, day, groups):
-        day_schedule = []
-        for hour in range(5):
-            end = False
-            groups_added = [0] * len(groups)
-            day_schedule.append([])
-            #all_children = sum(g.get_attendance(hour) for g in groups)
-            while not end:
-                new_group = []
-                new_attendance = [0] * 5
-                i = 0
-                for group in groups:
-                    to_add = True
-                    for h in range(hour, 5):
-                        if group.get_attendance(h) + new_attendance[h] > 25:
-                            to_add = False
-                            break
-                    if to_add and groups_added[i] == 0:
-                        new_group += group.get_list_of_classes()
-                        for h in range(hour, 5):   
-                            new_attendance[h] += group.get_attendance(h)
-                        groups_added[i] = 1
-                    i += 1
-                if sum(groups_added) == len(groups_added):
-                    end = True
-                new_cell = ScheduleCell(day, hour, new_group, new_attendance[hour])
-                day_schedule[hour].append(new_cell)
-        self.scheduleTable.append(day_schedule)
+                new_groups = [[], [], [], []]
+                
+                # creating same-level groups
+                for grade in range(4):
+
+                    for group in prev_groups[grade]:
+                        present_groups[grade].append(group)
+                    
+                    present_groups[grade] = sorted(present_groups[grade], key=lambda sc: sc.get_attendance(day, hour), reverse=True)
+
+                    while present_groups[grade]:
+                        group = Group(day, hour)
+                        while present_groups[grade] and group.get_attendance() + present_groups[grade][0].get_attendance(day, hour) <= 25:
+                            group.add_children(present_groups[grade].pop(0))
+                        if group.get_attendance() > 0:
+                            new_groups[grade].append(group)
+                
+                # creating cross-level groups
+                for grade in range(3): # starting with the oldest
+                    younger_grade_groups = new_groups[grade]
+                    older_grade_groups = new_groups[grade + 1]
+
+                    for younger_group in younger_grade_groups:
+                        for older_group in older_grade_groups[:]:
+                            if younger_group.get_attendance() + older_group.get_attendance() <= 25:
+                                younger_group.add_children(older_group)
+                                older_grade_groups.remove(older_group)
+                
+                for grade in range(2): # starting with the oldest
+                    younger_grade_groups = new_groups[grade]
+                    older_grade_groups = new_groups[grade + 2]
+
+                    for younger_group in younger_grade_groups:
+                        for older_group in older_grade_groups[:]:
+                            if younger_group.get_attendance() + older_group.get_attendance() <= 25:
+                                younger_group.add_children(older_group)
+                                older_grade_groups.remove(older_group)
+                
+                younger_grade_groups = new_groups[0]
+                older_grade_groups = new_groups[3]
+
+                for younger_group in younger_grade_groups:
+                    for older_group in older_grade_groups[:]:
+                        if younger_group.get_attendance() + older_group.get_attendance() <= 25:
+                            younger_group.add_children(older_group)
+                            older_grade_groups.remove(older_group)
+
+                # Remove empty groups
+                new_groups = [[group for group in grade_groups if group.get_attendance() > 0] for grade_groups in new_groups]
+
+                for grade in range(4):
+                    for group in new_groups[grade]:
+                        new_cell = ScheduleCell(day, hour, [school_class for subgroup in group.get_subgroups() for school_class in subgroup], group.get_attendance())
+                        day_schedule[hour].append(new_cell)
+
+                prev_groups = copy.deepcopy(new_groups)
+            self.scheduleTable.append(day_schedule)
+                
 
     def save_as(self, filepath, filename):
         days = ["Godzina", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek"]

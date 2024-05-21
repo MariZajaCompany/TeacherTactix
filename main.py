@@ -32,7 +32,8 @@ def start():
 
     # utworzenie harmonogramu
     schedule = Schedule() 
-    schedule.new_create_groups(all_classes)
+    #schedule.new_create_groups(all_classes)
+    schedule.create_groups(all_classes)
     schedule.display_schedule()
     #schedule.save_as("Results", "harmonogram")
     file_path = ControllerGUI.file_path
@@ -44,4 +45,5 @@ def start():
 
 if __name__ == "__main__":
     ControllerGUI.start_graphic_user_interface(start)
+    #start()
                 

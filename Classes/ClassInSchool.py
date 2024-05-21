@@ -6,7 +6,6 @@ class ClassInSchool:
         self.class_grade = class_grade
         self.class_letter = class_letter
         self.children_layout = [[0] * 5 for _ in range(5)]
-        # 5 x 5 table with groups?
 
     def get_class_name(self):
         return self.class_name
@@ -18,7 +17,6 @@ class ClassInSchool:
         return self.schedule
     
     def get_attendance(self, day, hour):
-
         return self.children_layout[hour][day]
     
     def get_children_layout(self):
