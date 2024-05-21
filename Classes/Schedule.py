@@ -203,6 +203,8 @@ class Schedule:
                         else:
                             ws.merge_cells(start_row=start_row, start_column=col, end_row=table_length + 1, end_column=col)
                         empty_block = False
+        if empty_block:
+                ws.merge_cells(start_row=start_row, start_column=6, end_row=table_length + 1, end_column=6)
 
         # Przypisanie stylu ramki
         side = Side(style='thin', color='ffffff')
@@ -261,6 +263,6 @@ class Schedule:
             ws[columns[col]][0].font =Font(name='Century Gothic', size=10, bold=True, italic=False, color='ffffff')
 
         full_path = os.path.join(filepath, filename + ".xlsx")
-        if os.path.exists(full_path):
-            os.remove(full_path)
+        # if os.path.exists(full_path):
+        #     os.remove(full_path)
         wb.save(full_path)

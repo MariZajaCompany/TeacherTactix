@@ -342,6 +342,14 @@ class App(customtkinter.CTk):
     def start_algorithm(self):
         global file_path
         file_path = save_file_dialog()
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+            except PermissionError:
+                print(f"File '{file_path}' is currently open and cannot be replaced.")
+                messagebox.showwarning("Błąd",
+                                       f"Plik '{file_path}' jest otwarty i nie można zmienić jego zawartości.")
+                return
         self.start()
 
 def is_file_open(file_path):
