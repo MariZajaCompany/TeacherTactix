@@ -1,6 +1,7 @@
 import csv
 import os
 import re
+import psutil
 from tkinter import messagebox, filedialog
 
 import customtkinter
@@ -342,6 +343,17 @@ class App(customtkinter.CTk):
         global file_path
         file_path = save_file_dialog()
         self.start()
+
+def is_file_open(file_path):
+        for proc in psutil.process_iter():
+            try:
+                files = proc.open_files()
+                for f in files:
+                    if file_path == f.path:
+                        return True
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                pass
+        return False
     
 def save_file_dialog():
         file_path = filedialog.asksaveasfilename(

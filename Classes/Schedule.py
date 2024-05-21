@@ -68,6 +68,7 @@ class Schedule:
             #all_children = sum(g.get_attendance(hour) for g in groups)
             while not end:
                 new_group = []
+                youngest = 3
                 new_attendance = [0] * 5
                 i = 0
                 for group in groups:
@@ -77,10 +78,12 @@ class Schedule:
                             to_add = False
                             break
                     if to_add and groups_added[i] == 0:
-                        new_group += group.get_list_of_classes()
-                        for h in range(hour, 5):   
-                            new_attendance[h] += group.get_attendance(h)
-                        groups_added[i] = 1
+                        if len(new_group) == 0 or (abs(group.get_oldest_grade() - youngest) <= 1):
+                            new_group += group.get_list_of_classes()
+                            for h in range(hour, 5):   
+                                new_attendance[h] += group.get_attendance(h)
+                            groups_added[i] = 1
+                            if group.get_youngest_grade() < youngest: youngest = group.get_youngest_grade()
                     i += 1
                 if sum(groups_added) == len(groups_added):
                     end = True
@@ -195,7 +198,10 @@ class Schedule:
                         empty_block = True
                 else:
                     if empty_block:
-                        ws.merge_cells(start_row=start_row, start_column=col+1, end_row=row - 1, end_column=col+1)
+                        if start_row < row - 1:
+                            ws.merge_cells(start_row=start_row, start_column=col+1, end_row=row - 1, end_column=col+1)
+                        else:
+                            ws.merge_cells(start_row=start_row, start_column=col, end_row=table_length + 1, end_column=col)
                         empty_block = False
 
         # Przypisanie stylu ramki

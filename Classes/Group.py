@@ -16,3 +16,17 @@ class Group:
         for hour in range(5):
             self.attendance[hour] += object.get_attendance(day, hour)
         self.subgroups.append(object)
+
+    def get_youngest_grade(self):
+        youngest = 4
+        for subgroup in self.subgroups:
+            if subgroup.get_grade() < youngest:
+                youngest = subgroup.get_grade()
+        return youngest
+    
+    def get_oldest_grade(self):
+        oldest = 0
+        for subgroup in self.subgroups:
+            if subgroup.get_grade() > oldest:
+                oldest = subgroup.get_grade()
+        return oldest
