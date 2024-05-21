@@ -245,7 +245,10 @@ class Schedule:
                         empty_block = True
                 else:
                     if empty_block:
-                        ws.merge_cells(start_row=start_row, start_column=col+1, end_row=row - 1, end_column=col+1)
+                        if start_row < row - 1:
+                            ws.merge_cells(start_row=start_row, start_column=col+1, end_row=row - 1, end_column=col+1)
+                        else:
+                            ws.merge_cells(start_row=start_row, start_column=col, end_row=table_length + 1, end_column=col)
                         empty_block = False
 
         # Przypisanie stylu ramki
