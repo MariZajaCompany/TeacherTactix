@@ -2,9 +2,6 @@
 from Classes.Schedule import Schedule
 from Classes.ClassInSchool import ClassInSchool
 import ControllerGUI
-import tkinter as tk
-from tkinter import filedialog
-from tkinter import simpledialog
 
 import os
 import re
@@ -27,17 +24,6 @@ def create_classes_from_folder(directory):
             print(f"Wrong file name format: {fileName}")
     return createdClasses
 
-def save_file_dialog():
-    root = tk.Tk()
-    root.withdraw()
-    file_path = filedialog.asksaveasfilename(
-        defaultextension=".xlsx",
-        filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")],
-        title="Zapisz harmonogram jako...",
-        initialfile="harmonogram.xlsx"
-    )
-    return file_path
-
 def start():
     
     data_folder = "Data"
@@ -49,7 +35,7 @@ def start():
     schedule.new_create_groups(all_classes)
     schedule.display_schedule()
     #schedule.save_as("Results", "harmonogram")
-    file_path = save_file_dialog()
+    file_path = ControllerGUI.file_path
     if file_path:
         folder, filename = file_path.rsplit('/', 1)
         filename = filename.replace('.xlsx', '')
