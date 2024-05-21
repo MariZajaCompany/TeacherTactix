@@ -43,7 +43,7 @@ def generate_and_save_files(num_grades, num_classes, rows, columns, output_folde
 
 
 if __name__ == "__main__":
-    num_grades = 2  # ile ma być roczników; tu: od 0 do 3
+    num_grades = 4  # ile ma być roczników; tu: od 0 do 3
     num_classes = 5  # ile ma być klas w roczniku; tu" od A do E
     rows = 5  # godziny
     columns = 5  # dni tygodnia

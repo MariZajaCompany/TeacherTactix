@@ -15,13 +15,15 @@ class ScheduleCell:
     def get_info_with_sizes(self):
         info = ""
         for c in self.classes:
-            info += str(c.get_class_name()) + " "
+            if c.get_attendance(self.day, self.hour) != 0:
+                info += str(c.get_class_name()) + " "
         info += "(" + str(self.attendance) + ")"
         return info
     
     def get_info(self):
         info = ""
         for c in self.classes:
-            info += str(c.get_class_name()) + " "
+            if c.get_attendance(self.day, self.hour) != 0:
+                info += str(c.get_class_name()) + " "
         info = info[:-1]
         return info
