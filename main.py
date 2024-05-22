@@ -10,6 +10,7 @@ def create_classes_from_folder(directory):
     filePrefix = 'rozklad_'
     csvFilesList = [plik for plik in os.listdir(directory) if plik.startswith(filePrefix) and plik.endswith('.csv')]
     createdClasses = []
+    data_directory = os.getenv("LOCALAPPDATA") + "\\TeacherTactix\\Data"
 
     for fileName in sorted(csvFilesList):
         result = re.match(r'rozklad_(\d+)(\w)\.csv', fileName)
@@ -17,7 +18,7 @@ def create_classes_from_folder(directory):
             number, letter = result.groups()
             classObject = ClassInSchool(int(number), letter)
             createdClasses.append(classObject)
-            csvFilePath = os.path.join("Data", fileName)
+            csvFilePath = os.path.join(data_directory, fileName)
             #csvFilePath = os.path.join("Generated Data", fileName)
             classObject.read_from_csv(csvFilePath)
         else:
@@ -26,7 +27,8 @@ def create_classes_from_folder(directory):
 
 def start():
     
-    data_folder = "Data"
+    data_folder = os.getenv("LOCALAPPDATA") + "\\TeacherTactix\\Data"
+    print(data_folder)
 
     all_classes = create_classes_from_folder(data_folder)
 
@@ -44,4 +46,3 @@ def start():
 
 if __name__ == "__main__":
     ControllerGUI.start_graphic_user_interface(start)
-                

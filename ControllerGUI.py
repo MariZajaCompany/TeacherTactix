@@ -10,7 +10,7 @@ customtkinter.set_appearance_mode("Light")  # Modes: "Dark", "Light"
 customtkinter.set_default_color_theme("magenta.json")
 
 current_scale = 1
-data_directory = "Data"
+data_directory = os.getenv("LOCALAPPDATA") + "\\TeacherTactix\\Data"
 user_manual_1 = "------- Instrukcja obsługi ------- \nWersja 1.3.1 \nProgram ten służy do generowania grafiku " \
                 "dla grup w świetlicy. Dostosuj wygląd interfejsu opcjami w lewym dolnym rogu."
 user_manual_2 = "Aby dodać grafik dla klasy kliknij przycisk po lewej stronie. Przycisk poniżej pozwala na zmianę ram " \
@@ -263,7 +263,7 @@ class App(customtkinter.CTk):
     def refresh_file_list(self):
         if not os.path.exists(data_directory):  # Check if "Data" directory exists
             os.makedirs(data_directory)  # If not, create it
-        class_files = [file for file in os.listdir("Data") if file.endswith(".csv") and file.startswith("rozklad")]
+        class_files = [file for file in os.listdir(data_directory) if file.endswith(".csv") and file.startswith("rozklad")]
 
         for label in self.labels:
             label.destroy()
@@ -288,7 +288,7 @@ class App(customtkinter.CTk):
             self.buttons.append(edit_button)
 
     def delete_file(self, filename):
-        filepath = os.path.join("Data", filename)
+        filepath = os.path.join(data_directory, filename)
         try:
             os.remove(filepath)
             self.refresh_file_list()  # Refresh the list of files after deletion
@@ -297,7 +297,7 @@ class App(customtkinter.CTk):
 
     def edit_file(self, filename):
         data_array = []
-        filepath = os.path.join("Data", filename)
+        filepath = os.path.join(data_directory, filename)
         with open(filepath, 'r') as file:
             lines = file.readlines()
 
